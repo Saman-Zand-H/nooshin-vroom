@@ -387,6 +387,7 @@ export function Bookcase({
   const [overRow, setOverRow] = useState<number | null>(null);
   const [serverRevision, setServerRevision] = useState<number | null>(null);
   const [serverReady, setServerReady] = useState(!bookshelf);
+  const pendingLocalDecor = useRef(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
@@ -487,9 +488,12 @@ export function Bookcase({
           x: Math.max(8, Math.min(92, decor.position)),
           ...(decor.image_path ? { src: `${decor.image_path}` } : {}),
         }));
-        setPlacedDecor((current) =>
-          placedDecorEqual(current, nextDecor) ? current : nextDecor,
-        );
+        if (!local || !pendingLocalDecor.current) {
+          setPlacedDecor((current) =>
+            placedDecorEqual(current, nextDecor) ? current : nextDecor,
+          );
+        }
+        pendingLocalDecor.current = false;
         setServerRevision(layout.revision);
         setServerReady(true);
       })
@@ -583,46 +587,52 @@ export function Bookcase({
       return next;
     });
   }
-  function addDecor(
+  async function addDecor(
     kind: DecorKind,
     row = 0,
     x = 78,
     src?: string,
     image?: Blob,
   ) {
-    const temporaryId = crypto.randomUUID();
-    setPlacedDecor((current) => [
-      ...current,
-      { id: temporaryId, kind, label: kind, row, x, ...(src ? { src } : {}) },
-    ]);
     if (!local && bookshelf) {
-      void bookshelf
-        .createDecoration({
+      try {
+        const created = await bookshelf.createDecoration({
           kind,
           label: kind,
           cubby: row,
           position: Math.round(x),
           image,
-        })
-        .then((created) => {
-          setPlacedDecor((current) =>
-            current.map((item) =>
-              item.id === temporaryId
-                ? {
-                    ...item,
-                    id: created.id,
-                    src: created.image_path || item.src,
-                  }
-                : item,
-            ),
-          );
-        })
-        .catch(() => {
-          setPlacedDecor((current) =>
-            current.filter((item) => item.id !== temporaryId),
-          );
-          setDecorMessage("Could not save that decorative.");
         });
+        setPlacedDecor((current) => [
+          ...current,
+          {
+            id: created.id,
+            kind,
+            label: kind,
+            row,
+            x,
+            ...(created.image_path || src
+              ? { src: created.image_path || src }
+              : {}),
+          },
+        ]);
+      } catch {
+        setDecorMessage("Could not save that decorative.");
+        return;
+      }
+    } else {
+      if (local) pendingLocalDecor.current = true;
+      setPlacedDecor((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind,
+          label: kind,
+          row,
+          x,
+          ...(src ? { src } : {}),
+        },
+      ]);
     }
     setShowDecorTray(false);
   }
@@ -811,7 +821,7 @@ export function Bookcase({
       blob,
     };
     setCustomDecor((items) => [...items, custom].slice(-24));
-    addDecor("custom", 0, 78, src, blob);
+    void addDecor("custom", 0, 78, src, blob);
     setDecorMessage("Decorative added to the shelf.");
     setShowDecorTray(true);
   }
