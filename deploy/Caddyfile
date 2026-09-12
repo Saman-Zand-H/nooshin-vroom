@@ -1,0 +1,9 @@
+vroom.nooshin.samanznd.com {
+    handle /pushed/* {
+        reverse_proxy host.docker.internal:9000
+    }
+
+    handle {
+        reverse_proxy host.docker.internal:5188
+    }
+}
