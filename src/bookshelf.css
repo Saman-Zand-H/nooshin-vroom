@@ -1,0 +1,1632 @@
+.book-view-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 20px;
+  color: var(--dim);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.book-view-switch {
+  display: flex;
+  gap: 3px;
+}
+
+.book-view-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 7px 13px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: none;
+}
+
+.book-view-switch button:hover,
+.book-view-switch button[aria-pressed="true"] {
+  border-color: var(--line);
+  background: #ffffff08;
+  color: var(--ink);
+}
+
+.bookcase-scene {
+  max-width: 900px;
+  margin: 12px auto 56px;
+}
+
+.bookcase-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 2px 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.bookcase-heading strong {
+  display: block;
+  margin-top: 4px;
+  color: #ead2b2;
+  font:
+    600 17px/1.1 "Cormorant Garamond",
+    serif;
+}
+
+.bookcase-hint {
+  font-size: 10px;
+}
+
+/* Four columns and six visual bands model the real cabinet: a short upper
+   left bay, two uninterrupted tall bays, then the four lower sections and
+   drawer. The 12 logical cubbies are positioned by React data. */
+.bookcase {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.16fr 1fr 1.08fr 1.34fr;
+  grid-template-rows: 22fr 22fr 20fr 18fr 18fr 8fr;
+  width: min(100%, 560px);
+  aspect-ratio: 0.51;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 18px 20px 22px;
+  overflow: hidden;
+  border: 2px solid #8d5b36;
+  border-radius: 3px;
+  background:
+    linear-gradient(90deg, #2d1710, #80502f22 45%, #2a150f),
+    repeating-linear-gradient(
+      8deg,
+      #704326 0 3px,
+      #80502f 3px 6px,
+      #603820 6px 10px
+    );
+  box-shadow:
+    inset 0 0 0 7px #3f2419,
+    inset 0 0 0 10px #a36b40,
+    inset 0 0 38px #1d0d08,
+    0 22px 44px #09040966;
+}
+
+.bookcase::before,
+.bookcase::after {
+  content: "";
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  bottom: 8%;
+  width: 15px;
+  border: 1px solid #3a1f15;
+  background:
+    linear-gradient(90deg, #28130e, #aa6c3e 45%, #65371f 70%, #29140e),
+    repeating-linear-gradient(
+      7deg,
+      #4e2b1c 0 5px,
+      #8a5735 5px 9px,
+      #61371f 9px 13px
+    );
+  box-shadow:
+    inset 2px 0 #d9a26466,
+    2px 0 6px #1a0c0999;
+  pointer-events: none;
+}
+
+.bookcase::before {
+  left: 7px;
+}
+.bookcase::after {
+  right: 7px;
+  transform: scaleX(-1);
+}
+
+.bookcase-shelf {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 4px 11px;
+}
+
+/* Upright mullions are painted by the shelf itself, so merged bays still
+   read as one compartment while the shorter crosspieces stay data-driven. */
+.bookcase-shelf::after {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  inset: 0 1px 11px;
+  border-right: 2px solid #b3794588;
+  border-left: 1px solid #32180f88;
+  pointer-events: none;
+}
+
+.bookcase-shelf.is-shelf-drop-target .shelf-track {
+  outline: 1px dashed #f0c098cc;
+  outline-offset: -4px;
+  filter: brightness(1.15);
+}
+
+.bookcase-shelf.is-shelf-drop-target .shelf-plank {
+  filter: brightness(1.18);
+}
+
+.shelf-track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: calc(100% - 14px);
+  min-height: 0;
+  padding: 12px 8px 0;
+  overflow: hidden;
+  border: 1px solid #3b2117;
+  border-bottom: 0;
+  background:
+    linear-gradient(
+      90deg,
+      #3b2519aa,
+      transparent 15%,
+      transparent 83%,
+      #342016aa
+    ),
+    repeating-linear-gradient(
+      95deg,
+      #4a2f20 0 4px,
+      #6f4b32 4px 9px,
+      #3e261b 9px 13px
+    );
+  box-shadow:
+    inset 0 0 23px #29150dcc,
+    inset 0 1px #d2935d44,
+    inset 1px 0 #140805aa,
+    inset -1px 0 #140805aa;
+  scrollbar-width: none;
+}
+
+.shelf-track::-webkit-scrollbar {
+  display: none;
+}
+.shelf-track::after {
+  content: "";
+  flex: 0 0 3px;
+}
+
+.shelf-drop-label {
+  position: absolute;
+  z-index: 12;
+  top: 8px;
+  left: 50%;
+  padding: 4px 8px;
+  border: 1px solid #e3b18e99;
+  border-radius: 999px;
+  background: #2b1710e8;
+  color: #f8ddc8;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.shelf-scroll {
+  position: absolute;
+  z-index: 12;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #c68d6288;
+  border-radius: 3px;
+  background: #2b1710cc;
+  color: #f4d7bc;
+  opacity: 0;
+  transform: translateY(-55%);
+  transition:
+    opacity 0.2s,
+    background 0.2s;
+}
+
+.bookcase-shelf:hover .shelf-scroll,
+.shelf-scroll:focus-visible {
+  opacity: 1;
+}
+.shelf-scroll:hover {
+  background: #4a281c;
+}
+.shelf-scroll-left {
+  left: -1px;
+}
+.shelf-scroll-right {
+  right: -1px;
+}
+
+.shelf-plank {
+  position: relative;
+  z-index: 9;
+  height: 14px;
+  margin: 0;
+  border: 1px solid #402217;
+  border-radius: 1px;
+  background:
+    linear-gradient(#c58a54, #8b512f 34%, #542d20 72%, #2b1513),
+    repeating-linear-gradient(
+      4deg,
+      #b47747 0 3px,
+      #8e532f 3px 7px,
+      #704025 7px 10px
+    );
+  box-shadow:
+    0 5px 0 #1a0b0d,
+    0 8px 10px #100706aa,
+    inset 0 1px #f2c38a77;
+}
+
+.bookcase-plinth {
+  position: relative;
+  z-index: 3;
+  grid-column: 1 / -1;
+  grid-row: 6;
+  min-height: 0;
+  margin: 3px -8px -12px;
+  border: 1px solid #b8b2a7;
+  border-radius: 1px;
+  background:
+    repeating-linear-gradient(168deg, #f7f5ef00 0 6px, #d8d4ca33 6px 8px),
+    linear-gradient(180deg, #f5f2ea, #e0dbd0 75%, #ccc5b9);
+  box-shadow:
+    0 7px 0 #271512,
+    0 10px 14px #12090666,
+    inset 0 1px #fff;
+}
+
+.bookcase-plinth::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 74px;
+  height: 12px;
+  border: 1px solid #bbb5aa;
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  background: #d8d4ca;
+  box-shadow: inset 0 2px 2px #a9a39866;
+  transform: translateX(-50%);
+}
+
+.shelf-book {
+  position: relative;
+  display: block;
+  flex: 0 0 var(--spine-width, 23px);
+  width: var(--spine-width, 23px);
+  height: var(--spine-height, 78%);
+  min-height: 48px;
+  max-height: 184px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #17100c;
+  border-radius: 1px 2px 1px 1px;
+  background: var(--binding);
+  color: #f7e7db;
+  box-shadow:
+    inset 3px 0 #07040a44,
+    inset -2px 0 #fff3,
+    2px 3px 4px #05030a99;
+  cursor: grab;
+  touch-action: none;
+  transform: rotate(var(--book-lean));
+  transition:
+    transform 0.18s,
+    filter 0.18s,
+    opacity 0.18s;
+}
+
+.shelf-book:hover,
+.shelf-book:focus-visible {
+  z-index: 8;
+  filter: brightness(1.2);
+  transform: translateY(-6px) rotate(var(--book-lean));
+}
+
+.shelf-book-horizontal {
+  /* Horizontal books are deliberately equal blocks. Stack math stays
+     deterministic when every layer has the same footprint. */
+  flex: 0 0 108px;
+  width: 108px;
+  height: 27px;
+  min-height: 0;
+  align-self: flex-end;
+  margin-left: 2px;
+  z-index: calc(5 + var(--stack-index, 0));
+  transform: translateY(calc(var(--stack-index, 0) * -2px));
+}
+
+.shelf-book-horizontal:hover,
+.shelf-book-horizontal:focus-within {
+  transform: translateY(calc(var(--stack-index, 0) * -2px - 6px));
+}
+
+.shelf-book-horizontal.shelf-book-stacked {
+  /* The flex box remains in document order; translate each layer back by one
+     complete block so all stack edges share the same x coordinate. */
+  margin-left: 2px;
+  transform: translate(
+      calc(var(--stack-index, 1) * -112px),
+      calc(var(--stack-index, 1) * -31px)
+    )
+    rotate(0deg);
+  box-shadow: 5px 7px 4px #06030a99;
+}
+
+.shelf-book-horizontal.shelf-book-stacked:hover,
+.shelf-book-horizontal.shelf-book-stacked:focus-within {
+  transform: translate(
+      calc(var(--stack-index, 1) * -112px),
+      calc(var(--stack-index, 1) * -31px - 6px)
+    )
+    rotate(0deg);
+}
+
+.shelf-cover-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 4px 5px;
+  background: linear-gradient(145deg, #ffffff18, #0003), var(--binding);
+  color: var(--book-ink, #f7e7db);
+}
+
+.shelf-cover-fallback span {
+  overflow: hidden;
+  font:
+    600 8px/1.02 "Cormorant Garamond",
+    serif;
+  text-align: left;
+  text-overflow: ellipsis;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.shelf-cover-fallback small {
+  overflow: hidden;
+  font:
+    6px/1 "Manrope",
+    sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  transform-origin: left bottom;
+}
+
+.shelf-book-horizontal .shelf-cover-fallback {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+}
+
+.shelf-book-horizontal .shelf-cover-fallback span {
+  min-width: 0;
+  font-size: 7px;
+  line-height: 1;
+  writing-mode: horizontal-tb;
+  transform: none;
+  white-space: nowrap;
+}
+
+.shelf-book-horizontal .shelf-cover-fallback small {
+  min-width: 0;
+  font-size: 6px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  transform: none;
+  white-space: nowrap;
+}
+
+.shelf-book-edge {
+  position: absolute;
+  z-index: 2;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #08050a44;
+}
+
+.shelf-book-horizontal .shelf-book-edge {
+  inset: auto 0 0;
+  width: 100%;
+  height: 3px;
+}
+
+.spine-bookmark {
+  position: absolute;
+  z-index: 4;
+  right: 2px;
+  bottom: -1px;
+  width: 3px;
+  height: 23px;
+  background: #e9aa7f;
+}
+
+.shelf-book-horizontal .spine-bookmark {
+  right: 8px;
+  bottom: 0;
+  width: 18px;
+  height: 3px;
+}
+
+.shelf-book-actions {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
+}
+
+.shelf-book-open {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  /* Let the sortable surface receive the pointer activator. Clicks still
+     bubble to the book below through its own handler. */
+  pointer-events: none;
+}
+
+.shelf-book-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #ecd2c588;
+  border-radius: 50%;
+  background: #1c101dd9;
+  color: #f6dfd3;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.shelf-book-stack-button {
+  position: absolute;
+  z-index: 4;
+  top: 3px;
+  right: 28px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #ecd2c588;
+  border-radius: 50%;
+  background: #1c101dd9;
+  color: #f6dfd3;
+  opacity: 0;
+  pointer-events: auto;
+}
+.shelf-book:hover .shelf-book-stack-button,
+.shelf-book:focus-within .shelf-book-stack-button {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .shelf-book-stack-button {
+    opacity: 0.8;
+  }
+}
+
+.shelf-book:hover .shelf-book-toggle,
+.shelf-book:focus-within .shelf-book-toggle {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .shelf-book-toggle {
+    opacity: 0.78;
+  }
+}
+.shelf-book:active {
+  cursor: grabbing;
+}
+.shelf-book.is-dragging {
+  opacity: 0.42;
+  transform: rotate(-3deg) scale(0.96);
+}
+.shelf-book.is-drag-over {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.book-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--binding);
+}
+.drag-book-preview {
+  pointer-events: none;
+  box-shadow: 6px 10px 14px #0009;
+}
+
+.binding-0 {
+  --binding: #9d4c60;
+}
+.binding-1 {
+  --binding: #c4774b;
+}
+.binding-2 {
+  --binding: #356c7b;
+}
+.binding-3 {
+  --binding: #674363;
+}
+.binding-4 {
+  --binding: #ae9852;
+  --book-ink: #28151e;
+}
+.binding-5 {
+  --binding: #4f6967;
+}
+.binding-6 {
+  --binding: #824156;
+}
+.binding-7 {
+  --binding: #ce9660;
+  --book-ink: #2b1720;
+}
+.binding-8 {
+  --binding: #64506b;
+}
+.binding-9 {
+  --binding: #8e5f4e;
+}
+
+.bookcase-empty-copy {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 90px;
+  color: #e0c1a0;
+  font:
+    19px "Caveat",
+    cursive;
+}
+
+.bookcase-empty-copy p {
+  margin: 0;
+}
+.bookcase-empty-copy .text-button {
+  color: #eab08f;
+  font-size: 10px;
+  transform: rotate(2deg);
+}
+
+/* Decorative objects are independent, movable elements. Their default set is
+   empty because the shelf itself is already modelled from the supplied
+   geometry; users can add any of these objects to a chosen cubby. */
+.placed-object {
+  position: absolute;
+  z-index: 5;
+  bottom: 1px;
+  left: var(--decor-x, 50%);
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 82px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  isolation: isolate;
+  touch-action: none;
+  transform: translateX(-50%);
+}
+
+.placed-object.decor-mug {
+  width: 38px;
+  height: 44px;
+}
+.placed-object.decor-pinecones {
+  width: 82px;
+  height: 58px;
+}
+.placed-object.decor-dolls {
+  width: 82px;
+  height: 98px;
+}
+.placed-object.decor-headphones {
+  width: 74px;
+  height: 61px;
+}
+.placed-object.decor-stationery {
+  width: 104px;
+  height: 62px;
+}
+.placed-object.decor-eggs {
+  width: 70px;
+  height: 67px;
+}
+.placed-object.decor-roses {
+  width: 84px;
+  height: 96px;
+}
+.placed-object.decor-speaker {
+  width: 70px;
+  height: 86px;
+}
+.placed-object.decor-tea-set {
+  width: 108px;
+  height: 70px;
+}
+.placed-object.decor-keepsakes {
+  width: 132px;
+  height: 78px;
+}
+.placed-object.decor-bust {
+  width: 48px;
+  height: 72px;
+}
+.placed-object.decor-vase {
+  width: 48px;
+  height: 72px;
+}
+.placed-object.decor-globe {
+  width: 56px;
+  height: 70px;
+}
+.placed-object.decor-plant {
+  width: 74px;
+  height: 67px;
+}
+.placed-object.decor-candle {
+  width: 26px;
+  height: 68px;
+}
+.placed-object.decor-postcard {
+  width: 74px;
+  height: 51px;
+}
+.placed-object.decor-ticket {
+  width: 82px;
+  height: 44px;
+}
+.placed-object.decor-custom {
+  width: 64px;
+  height: 72px;
+}
+
+.decor-move {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+
+.shelf-object {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  pointer-events: none;
+  filter: drop-shadow(3px 4px 3px #06030a99);
+}
+
+.placed-object.is-dragging {
+  opacity: 0.2;
+}
+
+.decor-remove {
+  position: absolute;
+  z-index: 10;
+  top: -7px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--ink);
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.decor-edit {
+  position: absolute;
+  top: -7px;
+  left: -8px;
+  z-index: 10;
+  min-height: 25px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    600 9px/1 "Manrope",
+    sans-serif;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.placed-object:hover .decor-remove,
+.placed-object:focus-within .decor-remove {
+  opacity: 1;
+}
+.placed-object:hover .decor-edit,
+.placed-object:focus-within .decor-edit {
+  opacity: 1;
+}
+
+.decor-edit-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 50%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px;
+  width: 190px;
+  padding: 8px;
+  border: 1px solid #86647f;
+  border-radius: 5px;
+  background: #25162b;
+  box-shadow: 0 8px 18px #08040dcc;
+  transform: translateX(-50%);
+}
+.decor-edit-popover input,
+.decor-edit-popover select {
+  min-width: 0;
+  height: 27px;
+  padding: 4px 6px;
+  border: 1px solid #644865;
+  border-radius: 3px;
+  background: #17101d;
+  color: var(--ink);
+  font:
+    10px "Manrope",
+    sans-serif;
+}
+.decor-edit-popover input {
+  grid-column: 1 / -1;
+}
+.decor-edit-popover button {
+  min-height: 27px;
+  padding: 4px 7px;
+  border: 1px solid #86647f;
+  border-radius: 3px;
+  background: #3a2340;
+  color: var(--ink);
+  font:
+    600 9px "Manrope",
+    sans-serif;
+}
+
+.bookcase-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.bookcase-add-decor {
+  width: auto !important;
+  min-height: 34px !important;
+  padding: 6px 11px !important;
+}
+
+.bookcase-decor-tray {
+  margin-top: 10px;
+  padding: 13px;
+  border: 1px solid #75546f;
+  border-radius: 5px;
+  background: #26182c;
+}
+
+.decor-tray-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.decor-tray-head strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.decor-message {
+  margin: 10px 0 0;
+  color: #e8c6a6;
+  font-size: 10px;
+}
+
+.decor-options {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.decor-option {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  min-height: 82px;
+  padding: 5px 3px;
+  border: 1px solid #5c4260;
+  border-radius: 4px;
+  background: #1d1423;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.decor-option:hover,
+.decor-option:focus-visible {
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.decor-option .shelf-object {
+  width: 68px;
+  height: 58px;
+}
+.decor-option small {
+  font-size: 8px;
+  line-height: 1.1;
+}
+.decor-option > svg {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  opacity: 0.45;
+}
+
+.decor-upload {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  min-height: 82px;
+  border: 1px dashed #806176;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.decor-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.decor-set-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.decor-set-row label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.decor-set-row select,
+.decor-set-row input {
+  min-height: 30px;
+  padding: 5px 7px;
+  border: 1px solid #644865;
+  border-radius: 3px;
+  background: #19111e;
+  color: var(--ink);
+  font: inherit;
+}
+
+.decor-set-row input {
+  min-width: 130px;
+}
+.decor-credits {
+  display: block;
+  width: fit-content;
+  margin: 12px 0 0 auto;
+  color: var(--muted);
+  font-size: 11px;
+  text-decoration: underline;
+}
+
+.bookcase-caption {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font:
+    19px "Caveat",
+    cursive;
+  text-align: center;
+  transform: rotate(-1deg);
+}
+
+@media (max-width: 700px) {
+  .bookcase-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .bookcase-hint {
+    align-self: end;
+  }
+  .bookcase {
+    width: 100%;
+    padding: 14px 14px 17px;
+  }
+  .bookcase::before,
+  .bookcase::after {
+    width: 11px;
+  }
+  .bookcase-shelf {
+    padding: 0 3px 9px;
+  }
+  .shelf-track {
+    padding: 8px 4px 0;
+  }
+  .shelf-book {
+    min-height: 42px;
+  }
+  .shelf-book-horizontal {
+    flex-basis: 78px;
+    width: 78px;
+    height: 22px;
+    min-height: 0;
+    margin-left: 1px;
+  }
+  .shelf-book-horizontal.shelf-book-stacked {
+    margin-left: 1px;
+    transform: translate(
+        calc(var(--stack-index, 1) * -81px),
+        calc(var(--stack-index, 1) * -26px)
+      )
+      rotate(0deg);
+  }
+  .placed-object.decor-mug {
+    width: 28px;
+    height: 34px;
+  }
+  .placed-object.decor-pinecones {
+    width: 58px;
+    height: 42px;
+  }
+  .placed-object.decor-dolls {
+    width: 58px;
+    height: 70px;
+  }
+  .placed-object.decor-headphones {
+    width: 52px;
+    height: 43px;
+  }
+  .placed-object.decor-stationery {
+    width: 72px;
+    height: 43px;
+  }
+  .placed-object.decor-eggs {
+    width: 48px;
+    height: 47px;
+  }
+  .placed-object.decor-roses {
+    width: 59px;
+    height: 67px;
+  }
+  .placed-object.decor-speaker {
+    width: 49px;
+    height: 60px;
+  }
+  .placed-object.decor-tea-set {
+    width: 76px;
+    height: 49px;
+  }
+  .placed-object.decor-keepsakes {
+    width: 92px;
+    height: 55px;
+  }
+  .placed-object.decor-bust,
+  .placed-object.decor-vase {
+    width: 38px;
+    height: 57px;
+  }
+  .placed-object.decor-globe {
+    width: 44px;
+    height: 56px;
+  }
+  .placed-object.decor-plant {
+    width: 55px;
+    height: 50px;
+  }
+  .placed-object.decor-candle {
+    width: 22px;
+    height: 52px;
+  }
+  .placed-object.decor-postcard {
+    width: 55px;
+    height: 39px;
+  }
+  .placed-object.decor-ticket {
+    width: 62px;
+    height: 34px;
+  }
+  .decor-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .decor-tray-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-book,
+  .shelf-scroll {
+    transition: none;
+  }
+}
+
+/* Hand-drawn shelf objects. These are CSS shapes so the objects remain part of
+   the editable layout instead of becoming flattened picture fragments. */
+.shelf-object {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(2px 3px 2px #130a08aa);
+}
+
+.shelf-object::before,
+.shelf-object::after,
+.shelf-object .object-detail {
+  content: "";
+  position: absolute;
+  display: block;
+}
+
+.shelf-object .object-detail-one,
+.shelf-object .object-detail-two,
+.shelf-object .object-detail-three {
+  display: none;
+}
+
+/* Small white engineer mug with a dark hand-lettered mark. */
+.shelf-object-mug {
+  width: 76% !important;
+  height: 68% !important;
+  margin: auto auto 5%;
+  border: 1px solid #b9b3a4;
+  border-radius: 4px 4px 9px 9px;
+  background: linear-gradient(145deg, #fffdf4, #c9c2b2 70%, #948a7a);
+  box-shadow:
+    inset 0 2px #fff,
+    inset -4px 0 #82776655;
+}
+.shelf-object-mug::before {
+  top: 38%;
+  left: 15%;
+  width: 65%;
+  height: 1px;
+  background: #413b35;
+  box-shadow:
+    0 5px #413b35,
+    4px 10px #413b35;
+  transform: rotate(-7deg);
+}
+.shelf-object-mug::after {
+  top: 19%;
+  right: -32%;
+  width: 42%;
+  height: 45%;
+  border: 3px solid #c9c2b2;
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+}
+
+/* Three pinecones, built from warm layered scales. */
+.shelf-object-pinecones {
+  background:
+    radial-gradient(
+      ellipse at 28% 74%,
+      #5a321e 0 20%,
+      #9c6334 21% 31%,
+      transparent 32%
+    ),
+    radial-gradient(
+      ellipse at 52% 62%,
+      #674027 0 22%,
+      #a56a38 23% 34%,
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 77% 79%,
+      #4e2b1c 0 18%,
+      #89552f 19% 29%,
+      transparent 30%
+    );
+}
+.shelf-object-pinecones::before {
+  inset: 21% 9% 8%;
+  border-radius: 48% 48% 42% 42%;
+  background: repeating-linear-gradient(
+    155deg,
+    #4b2919 0 4px,
+    #a46a37 4px 8px,
+    #6c4024 8px 12px
+  );
+  clip-path: polygon(
+    50% 0,
+    82% 17%,
+    100% 67%,
+    85% 100%,
+    14% 100%,
+    0 63%,
+    19% 16%
+  );
+  opacity: 0.92;
+}
+.shelf-object-pinecones::after {
+  inset: 14% 30% 29% 39%;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    155deg,
+    #5a301c 0 4px,
+    #b87c44 4px 7px,
+    #774523 7px 11px
+  );
+  clip-path: polygon(
+    50% 0,
+    86% 20%,
+    100% 72%,
+    80% 100%,
+    19% 100%,
+    0 65%,
+    18% 18%
+  );
+}
+
+/* A pair of little dolls in a shared display. */
+.shelf-object-dolls {
+  background:
+    radial-gradient(
+      circle at 35% 24%,
+      #f1bf9b 0 14%,
+      #6f392b 15% 17%,
+      transparent 18%
+    ),
+    radial-gradient(
+      circle at 65% 21%,
+      #efc39f 0 14%,
+      #e0a430 15% 17%,
+      transparent 18%
+    ),
+    radial-gradient(ellipse at 35% 69%, #726047 0 22%, transparent 23%),
+    radial-gradient(ellipse at 65% 68%, #b8a14b 0 23%, transparent 24%);
+}
+.shelf-object-dolls::before {
+  top: 31%;
+  left: 26%;
+  width: 20%;
+  height: 4%;
+  border-radius: 50%;
+  background: #4e2d25;
+  box-shadow: 18px 0 #4e2d25;
+}
+.shelf-object-dolls::after {
+  left: 8%;
+  right: 8%;
+  bottom: 5%;
+  height: 8%;
+  border-radius: 50%;
+  background: #41362eaa;
+}
+
+/* Closed black headphones, drawn as a padded ring and ear cups. */
+.shelf-object-headphones {
+  width: 90% !important;
+  height: 82% !important;
+  margin: auto auto 4%;
+  border: 7px solid #17171a;
+  border-bottom-color: transparent;
+  border-radius: 48% 48% 40% 40%;
+  transform: rotate(-8deg);
+}
+.shelf-object-headphones::before,
+.shelf-object-headphones::after {
+  bottom: -8%;
+  width: 35%;
+  height: 48%;
+  border-radius: 45%;
+  background: linear-gradient(135deg, #313136, #09090b);
+  box-shadow: inset 2px 2px #ffffff16;
+}
+.shelf-object-headphones::before {
+  left: -12%;
+}
+.shelf-object-headphones::after {
+  right: -12%;
+}
+
+/* Bright striped stationery box. */
+.shelf-object-stationery {
+  width: 92% !important;
+  height: 70% !important;
+  margin: auto auto 3%;
+  border: 2px solid #374c4b;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    0deg,
+    #e65c4f 0 7px,
+    #f5cf34 7px 14px,
+    #3bb6a7 14px 21px,
+    #5b4eaa 21px 28px
+  );
+  box-shadow:
+    inset 0 4px #ffffff44,
+    inset 0 -5px #18121a44;
+}
+.shelf-object-stationery::before {
+  inset: 14% 8%;
+  border: 1px solid #fff8;
+}
+
+/* Two painted ceramic eggs. */
+.shelf-object-eggs {
+  background:
+    radial-gradient(ellipse at 31% 73%, #f8f1d9 0 20%, transparent 21%),
+    radial-gradient(ellipse at 71% 68%, #f4ebcf 0 25%, transparent 26%);
+}
+.shelf-object-eggs::before,
+.shelf-object-eggs::after {
+  bottom: 12%;
+  width: 32%;
+  height: 50%;
+  border: 1px solid #b5a98e;
+  border-radius: 50% 50% 46% 46%;
+  background:
+    repeating-linear-gradient(
+      155deg,
+      transparent 0 8px,
+      #5f7591 9px 11px,
+      transparent 12px 17px
+    ),
+    #eee5c9;
+}
+.shelf-object-eggs::before {
+  left: 12%;
+  transform: rotate(-7deg);
+}
+.shelf-object-eggs::after {
+  right: 12%;
+  background:
+    repeating-linear-gradient(
+      25deg,
+      transparent 0 8px,
+      #bd6e63 9px 11px,
+      transparent 12px 17px
+    ),
+    #eee5c9;
+  transform: rotate(8deg);
+}
+
+/* Rose vase: brown stem, green leaves, dusty red heads. */
+.shelf-object-roses {
+  background: linear-gradient(
+    80deg,
+    transparent 0 45%,
+    #456445 46% 50%,
+    transparent 51% 100%
+  );
+}
+.shelf-object-roses::before {
+  bottom: 3%;
+  left: 28%;
+  width: 46%;
+  height: 32%;
+  border-radius: 8% 8% 42% 42%;
+  background: linear-gradient(90deg, #7d4936, #bc7650 50%, #683828);
+}
+.shelf-object-roses::after {
+  top: 16%;
+  left: 16%;
+  width: 30%;
+  height: 24%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #f0aa87 0 18%,
+    #9f4f4c 20% 44%,
+    #713840 45% 70%,
+    transparent 72%
+  );
+  box-shadow:
+    32px 11px 0 -2px #ae5c58,
+    15px 32px 0 -4px #944b4e;
+}
+
+/* Black speaker with the narrow gold trim seen in the cabinet. */
+.shelf-object-speaker {
+  width: 72% !important;
+  height: 88% !important;
+  margin: auto auto 2%;
+  border-radius: 10px 12px 5px 5px;
+  background: linear-gradient(100deg, #111216, #303039 55%, #0c0d10);
+  box-shadow:
+    inset 7px 0 #0007,
+    inset -4px 0 #ffffff12;
+}
+.shelf-object-speaker::before {
+  top: 11%;
+  right: 9%;
+  width: 3px;
+  height: 79%;
+  background: #c28d49;
+}
+.shelf-object-speaker::after {
+  left: 20%;
+  right: 20%;
+  bottom: 9%;
+  height: 4px;
+  border-radius: 50%;
+  background: #070709;
+}
+
+/* Tiny teapot and cups. */
+.shelf-object-tea-set {
+  background:
+    radial-gradient(
+      ellipse at 32% 67%,
+      #f5f0d8 0 14%,
+      #b9a978 15% 17%,
+      transparent 18%
+    ),
+    radial-gradient(
+      ellipse at 67% 72%,
+      #f5f0d8 0 13%,
+      #b9a978 14% 16%,
+      transparent 17%
+    );
+}
+.shelf-object-tea-set::before {
+  left: 24%;
+  bottom: 13%;
+  width: 42%;
+  height: 52%;
+  border: 2px solid #8c7652;
+  border-radius: 42% 42% 24% 24%;
+  background: linear-gradient(145deg, #f0dfad, #8f6d4e);
+}
+.shelf-object-tea-set::after {
+  left: 34%;
+  top: 8%;
+  width: 22%;
+  height: 13%;
+  border-radius: 50%;
+  background: #704c35;
+  box-shadow: 24px 28px 0 -5px #9f805a;
+}
+
+/* Stacked little keepsake boxes. */
+.shelf-object-keepsakes {
+  width: 96% !important;
+  height: 73% !important;
+  margin: auto auto 2%;
+  background: linear-gradient(
+    #a87b4c 0 22%,
+    transparent 22% 26%,
+    #3e4656 26% 52%,
+    transparent 52% 57%,
+    #b94d45 57% 83%,
+    transparent 83%
+  );
+}
+.shelf-object-keepsakes::before {
+  left: 8%;
+  right: 8%;
+  bottom: 5%;
+  height: 5%;
+  background: #1a1111;
+}
+.shelf-object-keepsakes::after {
+  top: 30%;
+  left: 25%;
+  width: 50%;
+  height: 1px;
+  background: #fff6;
+  box-shadow: 0 21px #fff4;
+}
+
+/* Dense stationery and vertical clutter seen in the real lower bays. */
+.shelf-object-notebooks {
+  width: 92% !important;
+  height: 88% !important;
+  margin: auto auto 2%;
+  background: repeating-linear-gradient(
+    90deg,
+    #244c5d 0 12%,
+    #d28c4b 12% 22%,
+    #587f70 22% 34%,
+    #b64850 34% 43%,
+    #343f58 43% 56%,
+    #c2a259 56% 64%,
+    #4e6970 64% 77%,
+    #9c5d54 77% 88%,
+    #2e3b45 88%
+  );
+  border-bottom: 5px solid #456451;
+}
+.shelf-object-notebooks::before {
+  left: 9%;
+  right: 9%;
+  bottom: -4px;
+  height: 6px;
+  background: #24a4a1;
+  border-top: 2px solid #ecce31;
+}
+.shelf-object-binders {
+  width: 92% !important;
+  height: 92% !important;
+  margin: auto auto 1%;
+  background: linear-gradient(
+    90deg,
+    #152b4b 0 18%,
+    #bd4657 18% 38%,
+    #785b68 38% 52%,
+    #b28b61 52% 69%,
+    #32493e 69% 86%,
+    #502d32 86%
+  );
+  border-radius: 2px;
+  box-shadow:
+    inset 3px 0 #fff2,
+    inset -3px 0 #0006;
+}
+.shelf-object-binders::before {
+  inset: 8% 0;
+  border-top: 2px solid #dcb68a;
+  border-bottom: 2px solid #130c16;
+}
+.shelf-object-paperback-stack {
+  width: 98% !important;
+  height: 68% !important;
+  margin: auto auto 1%;
+  background: repeating-linear-gradient(
+    0deg,
+    #17191f 0 10px,
+    #984746 10px 16px,
+    #d4a434 16px 21px,
+    #4a6d7b 21px 29px,
+    #c5c5aa 29px 35px
+  );
+  border: 1px solid #160f11;
+  box-shadow:
+    inset 0 2px #fff3,
+    inset 0 -3px #0006;
+}
+
+/* Existing catalogue pieces still work without imported artwork. */
+.shelf-object-bust {
+  width: 56% !important;
+  height: 75% !important;
+  margin: auto auto 3%;
+  border-radius: 45% 45% 12% 12%;
+  background:
+    radial-gradient(circle at 50% 27%, #d7b692 0 21%, transparent 22%),
+    linear-gradient(90deg, #62452f, #c39b6d 48%, #62452f);
+}
+.shelf-object-vase {
+  width: 56% !important;
+  height: 74% !important;
+  margin: auto auto 3%;
+  border-radius: 45% 45% 22% 22%;
+  background: linear-gradient(90deg, #4f271e, #b06b42 50%, #4f271e);
+}
+.shelf-object-globe {
+  width: 78% !important;
+  height: 77% !important;
+  margin: auto auto 3%;
+  border: 2px solid #b99c74;
+  border-radius: 50%;
+  background: repeating-linear-gradient(20deg, #6c7d7c 0 5px, #b3b4a1 6px 9px);
+}
+.shelf-object-globe::after {
+  top: 78%;
+  left: 35%;
+  width: 30%;
+  height: 20%;
+  border: 2px solid #b99c74;
+  border-top: 0;
+}
+.shelf-object-plant {
+  width: 94% !important;
+  height: 74% !important;
+  margin: auto auto 3%;
+  border-radius: 50% 50% 20% 20%;
+  background:
+    radial-gradient(ellipse at 25% 50%, #6c8d58 0 14%, transparent 15%),
+    radial-gradient(ellipse at 57% 28%, #78975c 0 18%, transparent 19%),
+    radial-gradient(ellipse at 80% 57%, #4d744d 0 16%, transparent 17%),
+    linear-gradient(90deg, transparent 48%, #765038 49% 53%, transparent 54%);
+}
+.shelf-object-candle {
+  width: 30% !important;
+  height: 76% !important;
+  margin: auto auto 3%;
+  border-radius: 8px 8px 2px 2px;
+  background: linear-gradient(90deg, #d5c4a7, #fff4d8 45%, #aa977d);
+}
+.shelf-object-candle::before {
+  top: -16%;
+  left: 28%;
+  width: 44%;
+  height: 22%;
+  border-radius: 50% 50% 45% 45%;
+  background: #f7bd68;
+  box-shadow: 0 -5px 5px #f7bd6888;
+}
+.shelf-object-postcard {
+  width: 96% !important;
+  height: 64% !important;
+  margin: auto auto 4%;
+  border: 1px solid #c8b995;
+  background: linear-gradient(145deg, #b8b39b, #655c4c);
+}
+.shelf-object-ticket {
+  width: 98% !important;
+  height: 48% !important;
+  margin: auto auto 5%;
+  border: 1px solid #b6a25c;
+  background: repeating-linear-gradient(90deg, #cfb963 0 5px, #8c7131 5px 6px);
+}
+
+@media (max-width: 700px) {
+  .shelf-object-mug {
+    width: 72% !important;
+  }
+  .shelf-object-stationery {
+    width: 90% !important;
+  }
+}

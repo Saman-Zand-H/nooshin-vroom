@@ -1,0 +1,24 @@
+name: Deploy vroom
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger server deployment
+        env:
+          WEBHOOK_URL: https://vroom.nooshin.samanznd.com/pushed/
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          payload=$(jq -n \
+            --arg ref "refs/heads/master" \
+            --arg after "$COMMIT_SHA" \
+            --arg repo "${{ github.repository }}" \
+            '{ref: $ref, after: $after, repository: {full_name: $repo}}')
+          curl --fail --show-error --silent --retry 3 \
+            -H 'Content-Type: application/json' \
+            --data "$payload" \
+            "$WEBHOOK_URL"

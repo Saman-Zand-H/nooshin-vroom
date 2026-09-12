@@ -1,0 +1,13 @@
+project_id = "control-room"
+
+[auth]
+enable_signup = false
+
+[functions.spotify]
+# The Spotify callback has no Supabase JWT. All other actions validate the JWT
+# and room membership inside the function before touching any data.
+verify_jwt = false
+
+[functions.imdb-watchlist]
+# The handler checks member JWTs itself; /scheduled uses a separate secret.
+verify_jwt = false

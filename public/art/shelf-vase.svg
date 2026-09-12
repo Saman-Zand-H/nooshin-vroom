@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 140">
+  <defs><linearGradient id="ceramic" x1="0" x2="1"><stop stop-color="#76506e"/><stop offset=".5" stop-color="#d2a1ae"/><stop offset="1" stop-color="#68485f"/></linearGradient></defs>
+  <path fill="#7da57f" d="M35 51C20 34 16 16 23 5c12 12 14 28 12 42zM38 47C44 24 56 11 67 11c1 17-10 29-27 39zM35 50C18 46 5 36 2 25c15-2 27 8 35 24z"/>
+  <path fill="#6a945f" d="M34 57h4v48h-4z"/>
+  <path fill="url(#ceramic)" d="M21 51h29c0 10 3 17 7 28l1 40H11l1-40c6-11 9-18 9-28z"/>
+  <ellipse cx="35" cy="51" rx="15" ry="5" fill="#b98598"/><ellipse cx="35" cy="120" rx="24" ry="7" fill="#825c72"/>
+</svg>

@@ -1,0 +1,6 @@
+- [ ] Persistent shelf schema and API
+- [ ] Frontend server layout adapter
+- [ ] Walnut cubby renderer and drag model
+- [ ] Seed readable shelf items
+- [ ] API/browser verification
+- [ ] Docker rebuild and health check

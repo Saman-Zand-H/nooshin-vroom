@@ -1,0 +1,39 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "cryptography==46.0.3",
+    "django==5.2.17",
+    "django-ninja==1.7.0",
+    "gunicorn==23.0.0",
+    "pillow==12.3.0",
+    "psycopg[binary]==3.2.10",
+    "requests==2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "pyrefly==1.2.0",
+    "ruff==0.16.6",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+exclude = [".venv", "media", "staticfiles"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]

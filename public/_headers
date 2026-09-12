@@ -1,0 +1,13 @@
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://books.google.com https://books.googleusercontent.com https://covers.openlibrary.org https://i.scdn.co; media-src 'self' blob:; connect-src 'self' https://api.example.com https://www.googleapis.com https://openlibrary.org; worker-src 'self'; manifest-src 'self'; form-action 'self'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000
+
+/room-sw.js
+  Cache-Control: no-cache
+
+/sw.js
+  Cache-Control: no-cache

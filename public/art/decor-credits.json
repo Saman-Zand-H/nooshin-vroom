@@ -1,0 +1,58 @@
+[
+  {
+    "file": "decor-bust.png",
+    "source": "https://commons.wikimedia.org/wiki/File:AlexanderTheGreat_Bust_Transparent.png",
+    "creator": "\nUnknown authorUnknown author",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-vase.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Terracotta_neck-amphora_of_Panathenaic_shape_(jar)_MET_DP161828_white_balanced_white_bg.png",
+    "creator": "Princeton Painter",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-plant.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Chinesischer_Wacholder_Bonsai.png",
+    "creator": "Shisma",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-candle.png",
+    "source": "https://commons.wikimedia.org/wiki/File:White_candle_(transparent).png",
+    "creator": "Original image by: William WarbyExtended and background removal with Pixelcut/Pixa by: Perquirius",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-globe.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Globe_on_Stand_1919.png",
+    "creator": "AnonymousUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-postcard.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Tu%C5%A1kanac_postcard,_1914.png",
+    "creator": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  },
+  {
+    "file": "decor-ticket.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Ritz_Theatre_Natchez,_Miss_10_cent_ticket.png",
+    "creator": "Ritz Theatre, Natchez, Miss / Globe Ticket Company",
+    "license": "Public domain",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "changes": "Cropped, resized and converted to PNG; background removed where applicable."
+  }
+]

@@ -1,0 +1,27 @@
+name: Django backend checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: latest
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: uv sync --frozen --directory backend
+      - run: backend/.venv/bin/python backend/manage.py check
+      - run: backend/.venv/bin/python backend/manage.py makemigrations --check
+      - run: backend/.venv/bin/ruff check backend
+      - run: backend/.venv/bin/pyrefly check backend

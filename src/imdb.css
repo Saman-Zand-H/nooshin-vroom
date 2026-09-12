@@ -1,0 +1,587 @@
+.imdb-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e2c56b;
+  color: #302318;
+  padding: 4px 7px;
+  border-radius: 4px;
+  font:
+    700 14px/1.2 "Manrope",
+    sans-serif;
+  letter-spacing: -0.06em;
+  flex-shrink: 0;
+  min-width: 45px;
+}
+.imdb-setting > .imdb-mark {
+  margin-left: -7px;
+}
+.imdb-setting .button {
+  max-width: 230px;
+  font-size: 11px;
+}
+.imdb-collection-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid #6a5262;
+  border-radius: 7px;
+  margin: 0 0 24px;
+  background: #30242e;
+}
+.imdb-collection-strip > div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.imdb-collection-strip p {
+  font-size: 13px;
+}
+.imdb-collection-strip small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.movie-imdb-import {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 4px 18px;
+}
+.movie-imdb-import p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.movie-imdb-import > button {
+  flex-shrink: 0;
+}
+.imdb-import {
+  max-width: 720px;
+}
+.imdb-import .dialog-heading .eyebrow {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  flex-wrap: wrap;
+}
+.imdb-import .dialog-heading .imdb-mark {
+  font-size: 12px;
+  min-width: 38px;
+  padding: 3px 5px;
+}
+.imdb-instructions {
+  border: 1px solid #624a6b;
+  border-radius: 6px;
+  padding: 0 16px;
+  margin-bottom: 20px;
+  background: #23182c;
+}
+.imdb-instructions summary,
+.imdb-row-issues summary {
+  min-height: 44px;
+  display: list-item;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: #d9c5d9;
+}
+.imdb-instructions ol {
+  padding: 0 0 0 17px;
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.9;
+}
+.imdb-instructions li {
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.imdb-instructions strong {
+  color: #e4cedc;
+  font-weight: 600;
+}
+.imdb-instructions li a {
+  color: var(--rose);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.imdb-instructions li svg {
+  display: inline;
+  vertical-align: middle;
+}
+.imdb-instructions > .text-button {
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+.imdb-file-picker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px;
+  background: #33243a;
+  border: 1px dashed #9273a0;
+  border-radius: 7px;
+}
+.imdb-file-picker > svg {
+  color: #d1b0d5;
+  flex-shrink: 0;
+}
+.imdb-file-picker > div {
+  min-width: 0;
+  flex: 1;
+}
+.imdb-file-picker strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 500;
+}
+.imdb-file-picker small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 7px;
+}
+.imdb-file-picker > button {
+  flex-shrink: 0;
+  font-size: 11px;
+  min-width: 99px;
+  padding: 9px 14px;
+}
+.imdb-preview-counts {
+  display: flex;
+  gap: 9px 17px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  padding: 20px 0 10px;
+  font-size: 11px;
+}
+.imdb-preview-counts strong {
+  font-weight: 600;
+  color: #ead6d4;
+}
+.imdb-row-issues {
+  border-bottom: 1px solid #654955;
+  margin-bottom: 15px;
+}
+.imdb-row-issues summary {
+  color: #efbecb;
+}
+.imdb-row-issues ul {
+  max-height: 145px;
+  overflow: auto;
+  padding-left: 18px;
+  margin: 0 0 15px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #d1b4c3;
+}
+.imdb-row-issues p {
+  font-size: 11px;
+  color: var(--muted);
+  padding-bottom: 14px;
+}
+.imdb-selection-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 6px 0 14px;
+}
+.imdb-selection-tools > .search-input {
+  flex: 1;
+  min-width: 0;
+}
+.imdb-selection-tools > button {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+.imdb-preview-list {
+  border: 1px solid #654b6f;
+  border-radius: 7px;
+  max-height: 295px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #201626;
+}
+.imdb-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid #4f3759;
+  min-height: 64px;
+  cursor: pointer;
+}
+.imdb-preview-row:last-child {
+  border-bottom: 0;
+}
+.imdb-preview-row:hover {
+  background: #36243e;
+}
+.imdb-preview-row > input {
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+  min-height: 19px;
+  margin: 0;
+  padding: 0;
+  accent-color: #d9b8cf;
+  flex-shrink: 0;
+}
+.imdb-preview-row > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.imdb-preview-row strong {
+  display: block;
+  font: 500 20px/1.18 var(--serif);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.imdb-preview-row small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.8;
+  margin-top: 5px;
+  color: #bdaac6;
+  overflow-wrap: anywhere;
+}
+.imdb-preview-row.already-saved {
+  cursor: default;
+}
+.imdb-preview-row.already-saved strong {
+  color: #c6b2ce;
+}
+.imdb-saved-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: #c4caa9;
+}
+.imdb-preview-list > p {
+  padding: 16px;
+}
+.imdb-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 5px 0;
+}
+.imdb-pagination > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.imdb-import-boundary {
+  padding: 16px 0;
+  font-size: 11px;
+}
+.imdb-import-submit {
+  width: 100%;
+}
+.imdb-progress {
+  display: grid;
+  gap: 7px;
+  padding: 5px 0 18px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.imdb-progress progress {
+  width: 100%;
+  height: 7px;
+  border: 0;
+  background: #503b5a;
+  border-radius: 5px;
+  accent-color: #d3acbe;
+}
+.imdb-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 14px 5px 6px;
+}
+.imdb-complete-icon {
+  display: grid;
+  place-items: center;
+  height: 62px;
+  width: 62px;
+  border: 1px solid #a7b398;
+  border-radius: 50%;
+  color: #d1d4b2;
+  background: #555b382e;
+}
+.imdb-complete h3 {
+  font-size: 36px;
+  line-height: 1.1;
+  margin: 23px 0 17px;
+}
+.imdb-complete p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 470px;
+}
+.imdb-complete-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 24px 0 14px;
+}
+@media (max-width: 719px) {
+  .imdb-setting > .imdb-mark {
+    margin-left: 0;
+  }
+  .imdb-setting > div {
+    flex-basis: calc(100% - 70px);
+    min-width: 0;
+  }
+  .imdb-setting > .button {
+    margin-left: 0;
+    max-width: none;
+    width: 100%;
+    font-size: 12px;
+  }
+  .imdb-collection-strip {
+    padding: 18px;
+    gap: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .imdb-collection-strip > div {
+    gap: 12px;
+  }
+  .imdb-collection-strip > .button {
+    width: 100%;
+    font-size: 12px;
+  }
+  .imdb-collection-strip p {
+    font-size: 12px;
+  }
+  .imdb-collection-strip small {
+    font-size: 10px;
+  }
+  .movie-imdb-import {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  .movie-imdb-import p {
+    font-size: 11px;
+  }
+  .imdb-import .dialog-heading .eyebrow {
+    font-size: 7px;
+    gap: 7px;
+  }
+  .imdb-import .dialog-heading h2 {
+    font-size: 34px;
+  }
+  .imdb-instructions {
+    padding: 0 13px;
+  }
+  .imdb-instructions ol {
+    font-size: 11px;
+  }
+  .imdb-file-picker {
+    padding: 14px;
+    gap: 11px;
+    flex-wrap: wrap;
+  }
+  .imdb-file-picker > button {
+    flex-basis: 100%;
+  }
+  .imdb-selection-tools {
+    gap: 10px;
+  }
+  .imdb-selection-tools > .text-button {
+    font-size: 10px;
+  }
+  .imdb-preview-row {
+    padding: 12px 10px;
+    gap: 10px;
+  }
+  .imdb-preview-row strong {
+    font-size: 20px;
+  }
+  .imdb-preview-counts {
+    gap: 8px 14px;
+    font-size: 10px;
+  }
+  .imdb-complete h3 {
+    font-size: 32px;
+  }
+  .imdb-complete p {
+    font-size: 12px;
+  }
+  .imdb-complete-actions {
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+    width: 100%;
+  }
+  .imdb-complete-actions > .text-button {
+    justify-content: center;
+  }
+  .imdb-import-boundary {
+    font-size: 10px;
+  }
+}
+.collection-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 30px;
+}
+.collection-pagination > span {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+@media (max-width: 719px) {
+  .collection-pagination {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .collection-pagination > span {
+    order: -1;
+    flex-basis: 100%;
+  }
+  .collection-pagination > button {
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+}
+.imdb-connection-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-start;
+}
+.imdb-connection-actions > .text-button {
+  font-size: 10px;
+}
+.movie-imdb-import .imdb-connection-actions {
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+}
+.imdb-connect-dialog .dialog-heading .eyebrow {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  flex-wrap: wrap;
+}
+.imdb-connect-dialog .dialog-heading .imdb-mark {
+  min-width: 39px;
+  font-size: 12px;
+}
+.watchlist-connect-submit {
+  width: 100%;
+  margin-top: 20px;
+}
+.watchlist-connection {
+  padding: 18px;
+  border: 1px solid #72547d;
+  border-radius: 8px;
+  background: #302238;
+}
+.watchlist-phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #dac4df;
+}
+.watchlist-phase.phase-connected {
+  color: #d2d9b7;
+}
+.watchlist-phase.phase-needs_attention {
+  color: #edc9b6;
+}
+.watchlist-source {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #c6abc8;
+  margin: 15px 0;
+  overflow-wrap: anywhere;
+}
+.watchlist-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 21px 0 17px;
+  gap: 22px;
+}
+.watchlist-facts > div {
+  min-width: 0;
+}
+.watchlist-facts dt {
+  font-size: 10px;
+  color: #c5b1c9;
+  margin-bottom: 6px;
+}
+.watchlist-facts dd {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #eee0e6;
+  margin: 0;
+}
+.watchlist-controls {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.watchlist-controls > .text-button {
+  color: #e0b7c7;
+}
+.watchlist-kept-note {
+  margin-top: 14px;
+}
+.watchlist-explanation {
+  padding-top: 21px;
+}
+@media (max-width: 719px) {
+  .imdb-setting > .imdb-connection-actions {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+  .imdb-connection-actions > .button {
+    width: 100%;
+  }
+  .imdb-connection-actions {
+    width: 100%;
+  }
+  .movie-imdb-import .imdb-connection-actions {
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .imdb-connect-dialog .dialog-heading .eyebrow {
+    font-size: 7px;
+  }
+  .watchlist-connection {
+    padding: 16px;
+  }
+  .watchlist-facts {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+  .watchlist-controls > .button {
+    width: 100%;
+  }
+  .watchlist-controls {
+    gap: 7px;
+  }
+  .watchlist-source {
+    font-size: 10px;
+  }
+}
