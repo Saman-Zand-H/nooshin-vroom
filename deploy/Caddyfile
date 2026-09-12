@@ -4,6 +4,6 @@ vroom.nooshin.samanznd.com {
     }
 
     handle {
-        reverse_proxy host.docker.internal:5188
+        reverse_proxy nooshin-vroom-frontend-1:80
     }
 }

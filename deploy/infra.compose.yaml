@@ -12,7 +12,14 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+    networks:
+      - control-room
 
 volumes:
   caddy-data:
   caddy-config:
+
+networks:
+  control-room:
+    external: true
+    name: control-room
