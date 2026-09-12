@@ -2,7 +2,7 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-COPY node_modules ./node_modules
+RUN npm ci --no-audit --no-fund
 COPY . .
 ARG VITE_BASE_PATH=/
 ARG VITE_DJANGO_SAME_ORIGIN=true
