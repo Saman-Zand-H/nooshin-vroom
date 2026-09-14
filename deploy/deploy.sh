@@ -14,5 +14,7 @@ git checkout -B master FETCH_HEAD
 test "$(git rev-parse HEAD)" = "${GITHUB_SHA:?missing GitHub SHA}"
 docker compose up -d --build
 docker compose ps
+docker compose -f deploy/infra.compose.yaml up -d
+docker compose -f deploy/infra.compose.yaml ps
 install -d -m 0755 /var/lib
 printf '%s\n' "$GITHUB_SHA" > /var/lib/nooshin-vroom-deployed-sha

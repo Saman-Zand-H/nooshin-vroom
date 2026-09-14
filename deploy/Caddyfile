@@ -1,4 +1,4 @@
-vroom.nooshin.samanznd.com {
+vroom.nooshin.samanznd.com, vroom.nooshinshdn.ir {
     handle /pushed/* {
         reverse_proxy host.docker.internal:9000
     }
