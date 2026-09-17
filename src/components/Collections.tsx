@@ -95,9 +95,14 @@ export function Collection({
   const [collectionPage, setCollectionPage] = useState(0);
   const [mediaFilter, setMediaFilter] = useState<"all" | ScreenType>("all");
   const library = ["book", "film", "game"].includes(initialKind);
+  // Only what can stand on a shelf belongs to the library view; audiobooks
+  // and ebooks stay in the covers grid.
+  const standsOnShelf = (entry: Entry) =>
+    entry.format !== "Audiobook" && entry.format !== "Ebook";
   const group = entries
     .filter((entry) => entry.kind === kind)
     .sort(kind === "music" ? compareSpotifyEntries : undefined);
+  const shelfGroup = kind === "book" ? group.filter(standsOnShelf) : group;
   const visible = group.filter(
     (entry) =>
       (filter === "All" || entry.status === filter) &&
@@ -109,6 +114,10 @@ export function Collection({
         .includes(query.toLocaleLowerCase()),
   );
   const paged = kind === "film" || kind === "music";
+  const shelfVisible =
+    kind === "book" ? visible.filter(standsOnShelf) : visible;
+  const shelfCount =
+    bookView === "shelf" ? shelfVisible.length : visible.length;
   const collectionPages = Math.max(1, Math.ceil(visible.length / 48));
   const currentCollectionPage = Math.min(collectionPage, collectionPages - 1);
   const shown = paged
@@ -316,18 +325,18 @@ export function Collection({
             </button>
           </div>
           <span>
-            {visible.length} {visible.length === 1 ? "book" : "books"}
+            {shelfCount} {shelfCount === 1 ? "book" : "books"}
             {filter !== "All" ? ` · ${filter}` : ""}
           </span>
         </div>
       )}
       {kind === "book" && bookView === "shelf" ? (
         <Bookcase
-          allEntries={group}
-          entries={shown}
+          allEntries={shelfGroup}
+          entries={shelfVisible}
           onEdit={onEdit}
           onAdd={() => onAdd("book")}
-          filtered={group.length > 0 && !visible.length}
+          filtered={shelfGroup.length > 0 && !shelfVisible.length}
           onClear={() => {
             setQuery("");
             setFilter("All");
