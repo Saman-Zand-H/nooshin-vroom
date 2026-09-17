@@ -379,10 +379,7 @@ export function Home({
       )}
       <RoomCorners />
       <footer className="room-footer">
-        <span>
-          Always trying to know you better, make you happier, and give you love,
-          always and forever
-        </span>
+        <span>Everything here is a small way of loving you.</span>
         <button className="text-button" onClick={() => onNavigate("notes")}>
           Keep writing to me
           <Feather size={14} />
