@@ -203,7 +203,7 @@ export function AuthGate({
             {recoveryMessage && <p role="status">{recoveryMessage}</p>}
           </form>
         )}
-        <small>Only you and I can open this door.</small>
+        <small>No one else can open this door.</small>
       </div>
     </main>
   );

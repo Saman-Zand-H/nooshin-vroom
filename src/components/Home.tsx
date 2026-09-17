@@ -286,7 +286,7 @@ export function Home({
               {request?.title || "What should I play for you?"}
             </h2>
             <p dir="auto">
-              {request?.creator || "Tell me which song should become ours."}
+              {request?.creator || "Tell me which song should become yours."}
             </p>
             <button
               className="text-button"

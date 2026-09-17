@@ -16,7 +16,7 @@ The room uses clean browser-history paths. Hashes are reserved for document anch
 | More corners       | `/corners`          |
 | Rabbit Holes       | `/rabbit-holes`     |
 | Watch nights       | `/watch-nights`     |
-| Our Adventure Book | `/adventure-book`   |
+| My Adventure Book | `/adventure-book`   |
 | Wall of Lyrics     | `/lyric-wall`       |
 
 Internal links use `history.pushState()` and Back/Forward is handled through `popstate`. This follows the platform contracts documented by [MDN `pushState`](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState) and [MDN `popstate`](https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event). Opening an old `#listen`-style bookmark replaces it once with the corresponding clean path.

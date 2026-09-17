@@ -53,7 +53,7 @@ const emptyCopy: Record<Kind, { heading: string; body: string }> = {
     body: "Connect the song, idea, character, or story that led to the next one.",
   },
   movie_night: {
-    heading: "What should we watch tonight?",
+    heading: "What should you watch tonight?",
     body: "Plan a film or a few episodes, on your own or beside me.",
   },
   adventure: {

@@ -152,7 +152,7 @@ export function MovieNight({ onAdd, onEdit }: SectionActions) {
                           : "WATCHED WITH SAMAN"
                         : solo
                           ? "JUST YOU"
-                          : "YOU AND ME"}
+                          : "WITH SAMAN"}
                     </span>
                     <button
                       className="icon-button"
@@ -252,7 +252,7 @@ export function MovieNight({ onAdd, onEdit }: SectionActions) {
                           onClick={() => void change(night, false)}
                         >
                           <Check size={16} />
-                          {solo ? "I watched it" : "We watched it"}
+                          {solo ? "I watched it" : "Watched it together"}
                         </button>
                       </>
                     )}

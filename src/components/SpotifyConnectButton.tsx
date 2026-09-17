@@ -48,7 +48,7 @@ export function SpotifyConnectButton({
                 {local
                   ? "The device preview keeps everything local. Run the Django service for a real Spotify connection."
                   : spotify.error
-                    ? "We couldn’t check the music door. Try again in a moment."
+                    ? "Couldn’t check the music door. Try again in a moment."
                     : "This place hasn’t been linked to Spotify yet. Once it is, you can bring in the songs you’ve been listening to."}
               </Dialog.Description>
             </div>

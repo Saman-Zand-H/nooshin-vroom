@@ -25,7 +25,7 @@ class AppBoundary extends Component<
   render() {
     return this.state.failed ? (
       <main className="room-loading">
-        <h1>Let’s open the door again.</h1>
+        <h1>Open the door again.</h1>
         <p>
           Something didn’t load correctly. Your saved items have not been
           removed.

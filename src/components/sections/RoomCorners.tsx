@@ -26,7 +26,7 @@ export const roomCorners = [
   {
     route: "adventures",
     kind: "adventure",
-    title: "Our Adventure Book",
+    title: "My Adventure Book",
     caption: "I want more adventures with you.",
     icon: Compass,
   },

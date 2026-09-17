@@ -1,6 +1,6 @@
 # New corners of the room
 
-The user approved the existing look and requested these additions on 2026-09-06. Keep the blackberry palette, warm paper, phone-first layout, and existing bottom navigation. Letters belong in the physical world: do not add a postbox or digital-letter feature. The lyric wall is based on the handwritten lyric wall in her home. Our Adventure Book takes scrapbook inspiration from _Up_, using original cover styling and artwork.
+The user approved the existing look and requested these additions on 2026-09-06. Keep the blackberry palette, warm paper, phone-first layout, and existing bottom navigation. Letters belong in the physical world: do not add a postbox or digital-letter feature. The lyric wall is based on the handwritten lyric wall in her home. My Adventure Book takes scrapbook inspiration from _Up_, using original cover styling and artwork.
 
 The four destinations appear as objects near the bottom of Home and in the header's Explore shortcut. They have their own horizontally scrollable local navigation. All use the existing composer, image upload path, conflict versions, local store, and Django API store. No new sample lyrics or fabricated memories are inserted.
 
@@ -12,7 +12,7 @@ The four destinations appear as objects near the bottom of Home and in the heade
 
 `#movie-night`, kind `movie_night`: an evening with a place, local calendar date/time, snacks, notes, picture, and up to eight film or series picks. It records whether Nooshin is watching **On my own** or **With Saman**. Places include Nooshin’s place, Saman’s place, Cinema, and Somewhere else. Pick titles manually or from the saved film collection. A choice can be selected explicitly or drawn from the shortlist; the chosen ID persists. Completed evenings require a chosen title and move to Watched. No tickets, invitations, messages, or external bookings are sent.
 
-## Our Adventure Book
+## My Adventure Book
 
 `#adventures`, kind `adventure`: a stitched cover opens into a paged scrapbook. Each page holds a title, optional photo, story, place, date, and either Someday or A memory. Cover, previous/next buttons, page index, and filters work on phones and with a keyboard. One main image per page; add more pages for more photos. No proprietary _Up_ artwork is bundled.
 
