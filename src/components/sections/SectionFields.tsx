@@ -53,6 +53,24 @@ export function SectionFields({
             }
           />
         </label>
+        <fieldset className="chapter-picker">
+          <legend>Which part of the book?</legend>
+          <div className="chapter-options" role="group">
+            {(["before", "after"] as const).map((chapter) => (
+              <button
+                key={chapter}
+                type="button"
+                aria-pressed={(details.chapter ?? "after") === chapter}
+                className={
+                  (details.chapter ?? "after") === chapter ? "active" : ""
+                }
+                onClick={() => onChange({ ...details, chapter })}
+              >
+                {chapter === "before" ? "Before the move" : "After the move"}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       </div>
     );
   }

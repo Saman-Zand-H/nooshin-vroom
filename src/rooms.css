@@ -965,6 +965,67 @@
   font: 12px var(--serif);
   color: #604842;
 }
+.adventure-divider {
+  grid-column: 1 / -1;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 40px;
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 40%, #f4e7d4 0%, #f4e7d400 62%),
+    repeating-linear-gradient(0deg, #00000000 0 27px, #88705922 27px 28px);
+}
+.adventure-divider-icon {
+  color: #604842;
+  transform: rotate(-8deg);
+  margin-bottom: 12px;
+}
+.adventure-divider .eyebrow {
+  color: #604842;
+  font-size: 10px;
+}
+.adventure-divider h2 {
+  font-size: 40px;
+  line-height: 1.08;
+  margin: 18px 0 6px;
+  max-width: 22ch;
+}
+.adventure-divider .handwritten {
+  font-size: 26px;
+  color: #6a4f4b;
+}
+.adventure-divider-rule {
+  width: 120px;
+  border-top: 1px dashed #917d61;
+  margin-top: 20px;
+}
+.scrapbook-era {
+  align-self: flex-start;
+  margin-top: 12px;
+  border: 1px solid #917d61;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #604842;
+}
+.adventure-index-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px dashed #917d61;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 8px;
+}
 .adventure-pagination {
   display: flex;
   align-items: center;

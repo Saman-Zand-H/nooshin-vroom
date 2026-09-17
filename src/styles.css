@@ -1648,6 +1648,39 @@ select {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
+.chapter-picker {
+  grid-column: 1 / -1;
+  border: 1px solid #62436d;
+  border-radius: 7px;
+  padding: 4px 16px 16px;
+  min-width: 0;
+}
+.chapter-picker legend {
+  font-size: 13px;
+  color: var(--ink);
+  padding: 0 7px;
+}
+.chapter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.chapter-options button {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid #634a6c;
+  border-radius: 6px;
+  padding: 8px 13px;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+}
+.chapter-options button.active {
+  color: var(--ink);
+  background: #ffffff08;
+  border-color: #80638b;
+}
 .composer-intro {
   display: flex;
   gap: 22px;

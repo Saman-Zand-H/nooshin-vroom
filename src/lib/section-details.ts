@@ -54,6 +54,7 @@ export interface AdventureDetails {
   type: "adventure";
   place: string;
   date: string;
+  chapter?: "before" | "after";
 }
 export interface LyricDetails {
   type: "lyric";
@@ -86,6 +87,7 @@ export const newAdventure = (): AdventureDetails => ({
   type: "adventure",
   place: "",
   date: "",
+  chapter: "after",
 });
 export const newLyric = (): LyricDetails => ({
   type: "lyric",
@@ -206,7 +208,16 @@ export function validateDetails(
     };
   }
   if (kind === "adventure")
-    return { type: kind, date: date(data.date), place: text(data.place, 180) };
+    return {
+      type: kind,
+      date: date(data.date),
+      place: text(data.place, 180),
+      // Existing pages predate the chapter field and belong to the new life.
+      chapter:
+        data.chapter === undefined
+          ? "after"
+          : option(data.chapter, ["before", "after"] as const),
+    };
   if (
     typeof data.position !== "number" ||
     !Number.isFinite(data.position) ||
