@@ -293,4 +293,11 @@ def saved_song(item):
     )
     if not base or not isinstance(added, str) or not album:
         return None
-    return {**base, "addedAt": added, "album": str(album)[:240], "releaseYear": year}
+    duration = source.get("duration_ms")
+    return {
+        **base,
+        "addedAt": added,
+        "album": str(album)[:240],
+        "releaseYear": year,
+        "durationMs": duration if isinstance(duration, int) and duration > 0 else None,
+    }

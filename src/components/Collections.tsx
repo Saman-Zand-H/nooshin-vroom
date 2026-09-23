@@ -269,7 +269,9 @@ export function Collection({
         </div>
       )}
       {kind === "music" && <SpotifyListening />}
-      {kind === "music" && <SpotifyStats entries={group} />}
+      {kind === "music" && (
+        <SpotifyStats entries={group} roomEntries={entries} />
+      )}
       {group.length > 0 && (
         <div className="collection-toolbar">
           <label className="search-input">

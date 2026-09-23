@@ -8,3 +8,4 @@ dist/
 backend/*.sqlite3
 backend/media/
 backend/staticfiles/
+.local-backup/

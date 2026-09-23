@@ -450,6 +450,9 @@ export const localStore: RoomStore = {
               provider_album: current.provider_album || song.album,
               provider_release_year:
                 current.provider_release_year ?? song.releaseYear,
+              provider_duration_ms:
+                current.provider_duration_ms ?? song.durationMs,
+              image_url: current.image_url ?? song.image ?? null,
             });
           }
           skipped++;
@@ -468,6 +471,8 @@ export const localStore: RoomStore = {
           provider_added_at: new Date(song.addedAt).toISOString(),
           provider_album: song.album,
           provider_release_year: song.releaseYear,
+          provider_duration_ms: song.durationMs,
+          image_url: song.image ?? null,
         };
         await tx.objectStore("entries").add(entry);
         await tx.objectStore("events").add({

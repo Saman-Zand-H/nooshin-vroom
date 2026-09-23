@@ -103,6 +103,8 @@ export const djangoStore: RoomStore = {
             added_at: song.addedAt,
             album: song.album,
             release_year: song.releaseYear,
+            duration_ms: song.durationMs,
+            image: song.image ?? null,
           })),
         }),
       },

@@ -55,6 +55,7 @@ export interface Entry {
   provider_added_at?: string | null;
   provider_album?: string | null;
   provider_release_year?: number | null;
+  provider_duration_ms?: number | null;
   created_at: string;
   updated_at: string;
   created_by: string;

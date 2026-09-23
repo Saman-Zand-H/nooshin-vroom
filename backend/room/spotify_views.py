@@ -130,7 +130,9 @@ def liked(request):
 def listening(request):
     try:
         current = spotify("me/player/currently-playing", request.user)
-        recent = spotify("me/player/recently-played?limit=10", request.user)
+        # Fifty is Spotify's maximum page for recently played; the stats page
+        # counts the room member's real rotation from it.
+        recent = spotify("me/player/recently-played?limit=50", request.user)
         liked_page = spotify("me/tracks?limit=10", request.user)
         playlists = spotify("me/playlists?limit=10", request.user)
         return JsonResponse(

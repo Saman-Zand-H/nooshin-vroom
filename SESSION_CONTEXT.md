@@ -291,6 +291,13 @@ Verification: a full unauthenticated public reference read returned 2,155 titles
 
 ## Constraints and preferences
 
+## Deepened listening statistics (2026-09-23)
+
+- `/songs` statistics grew from derived-only panels to a fuller factual story: weekday and hour-of-day save patterns (local timezone via `Intl.DateTimeFormat` parts), monthly saving streaks and quiet stretches with the song that broke the silence, artists revisited across different saving years, oldest-recording-to-newest-release span, version counts (Taylor's Version, remix, acoustic, live, sped-up), recurring artist pairings in credits, and title word frequency with a function-word stop list. Cross-corner panels count liked songs that later became violin requests or lyric-wall pieces; they match on `spotify:<id>` or a normalized title.
+- Migration `0012_roomentry_provider_duration_ms.py` adds `provider_duration_ms`. The Spotify import now stores track durations and cover URLs alongside existing metadata; the None-backfill loop fills them for already-saved songs on the next sync without touching edits. Durations power the "if you played it all" total listening time; covers power a canvas-extracted dominant-colour palette (up to 24 covers, saturation-weighted bucketing, CORS-safe null handling).
+- The `image_url` host allowlist extends to `i.scdn.co`, `image-cdn-ak.spotifycdn.com`, and `image-cdn-fa.spotifycdn.com` (both CDNs verified to send `Access-Control-Allow-Origin: *`). The import drops covers from unexpected hosts instead of failing the batch. The `listening` endpoint's recently-played limit rose from 10 to 50 for the live "recent rotation" panel, which counts artists across those plays.
+- Verified locally against a mirror of the production database: one forced re-sync backfilled durations and covers for all 451 songs; totals, weekday sums, discovery lags, palette swatches, and cross-corner counts checked out. Durations and covers remain empty in production until the first member visit sync after deploy; panels show honest placeholders until then.
+
 ## Django and Docker backend (2026-09-07)
 
 - The hosted backend is Django 5.2 with Django Ninja under `backend/`. Built-in Django sessions/auth, CSRF, `RoomMember` authorization, ORM persistence, private media, Spotify OAuth, and IMDb reads are the only active backend paths. Supabase runtime code was removed; old files are retained only under `legacy/supabase` as a non-deployed migration reference.

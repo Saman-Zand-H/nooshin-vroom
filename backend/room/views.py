@@ -1,6 +1,7 @@
 import mimetypes
 import re
 from functools import wraps
+from urllib.parse import urlparse
 
 from django.core.files.uploadedfile import UploadedFile
 from django.db import IntegrityError, connection, transaction
@@ -248,6 +249,16 @@ def import_entries(request, provider: str):
         items = payload.get("songs" if provider == "spotify" else "films")
         if not isinstance(items, list) or not 1 <= len(items) <= 250:
             raise ValidationFailure("Import from 1 to 250 items at a time.")
+        # Cover hosts the room will reference remotely. An unknown Spotify CDN
+        # host must degrade to no cover, never fail the import batch.
+        cover_hosts = {
+            "books.google.com",
+            "books.googleusercontent.com",
+            "covers.openlibrary.org",
+            "i.scdn.co",
+            "image-cdn-ak.spotifycdn.com",
+            "image-cdn-fa.spotifycdn.com",
+        }
         seen = set()
         prepared = []
         for item in items:
@@ -260,6 +271,9 @@ def import_entries(request, provider: str):
                         "The Spotify import contains a duplicate or invalid track."
                     )
                 seen.add(track_id)
+                cover = item.get("image")
+                if not isinstance(cover, str) or urlparse(cover).hostname not in cover_hosts:
+                    cover = None
                 clean = clean_entry_payload(
                     {
                         "kind": "music",
@@ -271,10 +285,12 @@ def import_entries(request, provider: str):
                         "rating": 0,
                         "format": "Spotify liked song",
                         "link": f"https://open.spotify.com/track/{track_id}",
+                        "image_url": cover,
                         "source_id": f"spotify:{track_id}",
                         "provider_added_at": item.get("added_at"),
                         "provider_album": item.get("album"),
                         "provider_release_year": item.get("release_year"),
+                        "provider_duration_ms": item.get("duration_ms"),
                     }
                 )
             else:
@@ -307,7 +323,13 @@ def import_entries(request, provider: str):
                 # pyrefly: ignore [missing-attribute]
                 existing = RoomEntry.objects.filter(kind=clean["kind"], source_id=identity).first()
                 if existing:
-                    for field in ("provider_added_at", "provider_album", "provider_release_year"):
+                    for field in (
+                        "provider_added_at",
+                        "provider_album",
+                        "provider_release_year",
+                        "provider_duration_ms",
+                        "image_url",
+                    ):
                         if (
                             provider == "spotify"
                             and getattr(existing, field) is None
@@ -320,6 +342,8 @@ def import_entries(request, provider: str):
                                 "provider_added_at",
                                 "provider_album",
                                 "provider_release_year",
+                                "provider_duration_ms",
+                                "image_url",
                             ]
                         )
                     skipped += 1

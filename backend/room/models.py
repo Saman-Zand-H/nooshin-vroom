@@ -56,6 +56,7 @@ class RoomEntry(models.Model):
     provider_added_at = models.DateTimeField(blank=True, null=True)
     provider_album = models.CharField(max_length=240, blank=True, null=True)
     provider_release_year = models.PositiveSmallIntegerField(blank=True, null=True)
+    provider_duration_ms = models.PositiveIntegerField(blank=True, null=True)
     details = models.JSONField(blank=True, null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

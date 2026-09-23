@@ -11,6 +11,8 @@ export interface SpotifySong {
   addedAt: string;
   album: string;
   releaseYear: number | null;
+  durationMs: number | null;
+  image?: string | null;
 }
 
 export interface SpotifyImportResult {
@@ -61,7 +63,11 @@ export function spotifyDraft(song: SpotifySong): Draft {
     (song.releaseYear !== null &&
       (!Number.isInteger(song.releaseYear) ||
         song.releaseYear < 1000 ||
-        song.releaseYear > 9999))
+        song.releaseYear > 9999)) ||
+    (song.durationMs !== null &&
+      (!Number.isInteger(song.durationMs) ||
+        song.durationMs < 1 ||
+        song.durationMs > 3_600_000))
   )
     throw new Error("Spotify album metadata is invalid.");
   return validateDraft({

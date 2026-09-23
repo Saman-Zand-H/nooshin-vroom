@@ -1491,6 +1491,35 @@ a svg {
   color: #e3c39b;
   font-style: normal;
 }
+.spotify-stat-cards strong.spotify-stat-word {
+  font-size: 22px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.spotify-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.spotify-chip {
+  padding: 5px 10px;
+  border: 1px solid #4b394f;
+  border-radius: 999px;
+  background: #2b2131;
+  color: #d8c6da;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.spotify-swatch-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.spotify-swatch-strip span {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1px solid rgba(240, 225, 226, 0.12);
+}
 .spotify-items {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

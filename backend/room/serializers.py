@@ -108,12 +108,24 @@ def clean_entry_payload(payload: dict) -> dict:
         "books.google.com",
         "books.googleusercontent.com",
         "covers.openlibrary.org",
+        # Spotify album art from the Web API and its newer CDN mirror.
+        "i.scdn.co",
+        "image-cdn-ak.spotifycdn.com",
+        "image-cdn-fa.spotifycdn.com",
     }:
         raise ValidationFailure("Use a catalogue cover or upload your own image.")
     provider_added_at = parse_datetime(payload.get("provider_added_at"))
     provider_album = bounded_text(payload.get("provider_album"), 240) or None
     provider_release_year = parse_release_year(payload.get("provider_release_year"))
-    if kind != "music" and any((provider_added_at, provider_album, provider_release_year)):
+    provider_duration_ms = parse_duration(payload.get("provider_duration_ms"))
+    if kind != "music" and any(
+        (
+            provider_added_at,
+            provider_album,
+            provider_release_year,
+            provider_duration_ms,
+        )
+    ):
         raise ValidationFailure("Provider song metadata belongs only to music entries.")
     return {
         "kind": kind,
@@ -131,7 +143,20 @@ def clean_entry_payload(payload: dict) -> dict:
         "provider_added_at": provider_added_at,
         "provider_album": provider_album,
         "provider_release_year": provider_release_year,
+        "provider_duration_ms": provider_duration_ms,
     }
+
+
+def parse_duration(value):
+    if value in (None, ""):
+        return None
+    try:
+        value = int(value)
+    except (TypeError, ValueError) as error:
+        raise ValidationFailure("A track duration is invalid.") from error
+    if not 1 <= value <= 3_600_000:
+        raise ValidationFailure("A track duration is invalid.")
+    return value
 
 
 def parse_datetime(value):
@@ -185,6 +210,7 @@ def entry_json(request: HttpRequest, entry: RoomEntry) -> dict:
         else None,
         "provider_album": entry.provider_album,
         "provider_release_year": entry.provider_release_year,
+        "provider_duration_ms": entry.provider_duration_ms,
         # pyrefly: ignore [missing-attribute]
         "created_at": entry.created_at.isoformat(),
         # pyrefly: ignore [missing-attribute]
