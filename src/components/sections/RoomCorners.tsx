@@ -2,20 +2,14 @@ import {
   ArrowUpRight,
   Clapperboard,
   Compass,
-  Orbit,
+  Heart,
+  MoonStar,
   Quote,
 } from "lucide-react";
 import { useRoom } from "../../lib/room-context";
 import { routeHref } from "../../lib/routes";
 
 export const roomCorners = [
-  {
-    route: "rabbit-holes",
-    kind: "rabbit_hole",
-    title: "Rabbit Holes",
-    caption: "Show me what you’ve been curious about.",
-    icon: Orbit,
-  },
   {
     route: "movie-night",
     kind: "movie_night",
@@ -36,6 +30,20 @@ export const roomCorners = [
     title: "Wall of Lyrics",
     caption: "Your lyrics, just like the wall at home.",
     icon: Quote,
+  },
+  {
+    route: "little-loves",
+    kind: "love",
+    title: "Little loves",
+    caption: "The small things that are simply yours.",
+    icon: Heart,
+  },
+  {
+    route: "moon-days",
+    kind: "cycle",
+    title: "Moon days",
+    caption: "Your cycle, quietly kept.",
+    icon: MoonStar,
   },
 ] as const;
 
@@ -77,14 +85,7 @@ export function RoomCorners({ directory = false }: { directory?: boolean }) {
               className={`corner-door door-${kind}`}
             >
               <div className="corner-miniature" aria-hidden="true">
-                {kind === "rabbit_hole" ? (
-                  <>
-                    <i />
-                    <i />
-                    <i />
-                    <Orbit />
-                  </>
-                ) : kind === "movie_night" ? (
+                {kind === "movie_night" ? (
                   <>
                     <span className="mini-screen">
                       <Clapperboard size={26} strokeWidth={1} />
@@ -99,6 +100,12 @@ export function RoomCorners({ directory = false }: { directory?: boolean }) {
                     <br />
                     BOOK
                     <Compass size={24} strokeWidth={1} />
+                  </span>
+                ) : kind === "cycle" ? (
+                  <span className="mini-moon">
+                    <MoonStar size={26} strokeWidth={1} />
+                    <i />
+                    <i />
                   </span>
                 ) : (
                   <>

@@ -28,10 +28,11 @@ import { routeHref, viewPaths, viewFromPath, type View } from "./lib/routes";
 const ExtraRooms = lazy(() => import("./components/sections/ExtraRooms"));
 const extraViews: View[] = [
   "explore",
-  "rabbit-holes",
   "movie-night",
   "adventures",
   "lyrics",
+  "little-loves",
+  "moon-days",
 ];
 
 const navigation: { id: View; label: string; icon: typeof HomeIcon }[] = [

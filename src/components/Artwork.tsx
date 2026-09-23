@@ -4,12 +4,14 @@ import {
   Clapperboard,
   Feather,
   Gamepad2,
+  Heart,
+  MoonStar,
   Music2,
+  Scale,
   Sparkles,
   Ticket,
   Compass,
   Quote,
-  Orbit,
 } from "lucide-react";
 import type { Entry, Kind } from "../lib/model";
 import { useRoom } from "../lib/room-context";
@@ -22,10 +24,12 @@ const glyphs = {
   note: Feather,
   film: Clapperboard,
   game: Gamepad2,
-  rabbit_hole: Orbit,
   movie_night: Clapperboard,
   adventure: Compass,
   lyric: Quote,
+  love: Heart,
+  cycle: MoonStar,
+  body: Scale,
 };
 
 export function useMediaUrl(path: string | null) {

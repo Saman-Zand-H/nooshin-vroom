@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { AdventureBook } from "./AdventureBook";
+import { LittleLoves } from "./LittleLoves";
 import { LyricWall } from "./LyricWall";
+import { MoonDays } from "./MoonDays";
 import { MovieNight } from "./MovieNight";
-import { RabbitHoles } from "./RabbitHoles";
 import { RoomCorners, roomCorners } from "./RoomCorners";
 import type { SectionActions } from "./section-actions";
 import { routeHref } from "../../lib/routes";
@@ -37,14 +38,16 @@ export default function ExtraRooms({
           ))}
         </nav>
       )}
-      {view === "rabbit-holes" ? (
-        <RabbitHoles {...actions} />
-      ) : view === "movie-night" ? (
+      {view === "movie-night" ? (
         <MovieNight {...actions} />
       ) : view === "adventures" ? (
         <AdventureBook {...actions} />
       ) : view === "lyrics" ? (
         <LyricWall {...actions} />
+      ) : view === "little-loves" ? (
+        <LittleLoves {...actions} />
+      ) : view === "moon-days" ? (
+        <MoonDays {...actions} />
       ) : (
         <RoomCorners directory />
       )}

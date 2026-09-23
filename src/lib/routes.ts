@@ -9,10 +9,11 @@ export const viewPaths = {
   notes: "/notes",
   connections: "/connections",
   explore: "/corners",
-  "rabbit-holes": "/rabbit-holes",
   "movie-night": "/watch-nights",
   adventures: "/adventure-book",
   lyrics: "/lyric-wall",
+  "little-loves": "/little-loves",
+  "moon-days": "/moon-days",
 } as const;
 
 export type View = keyof typeof viewPaths;

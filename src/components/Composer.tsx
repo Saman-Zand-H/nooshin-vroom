@@ -16,7 +16,12 @@ import {
   type Kind,
   type Uploads,
 } from "../lib/model";
-import { newDetails } from "../lib/section-details";
+import {
+  bodyTitle,
+  newCycle,
+  newDetails,
+  periodTitle,
+} from "../lib/section-details";
 import { prepareImage, validateRecording } from "../lib/media";
 import { useRoom } from "../lib/room-context";
 import { useMediaUrl } from "./Artwork";
@@ -68,12 +73,6 @@ const labels: Record<
     description: "What you’re playing or want to try next.",
     creator: "Studio",
   },
-  rabbit_hole: {
-    title: "One thing leads to another.",
-    description:
-      "Make a trail through your favourite things. Add what connects each stop.",
-    creator: "",
-  },
   movie_night: {
     title: "What’s on tonight?",
     description: "A film or a few episodes. Just you, or a night with me.",
@@ -88,6 +87,22 @@ const labels: Record<
     title: "Put it on the wall.",
     description: "The words, the song, the way you want to see them.",
     creator: "Artist",
+  },
+  love: {
+    title: "A little love.",
+    description:
+      "One of the small things that’s simply yours. Name it, keep its story, and the little lines that come with it.",
+    creator: "",
+  },
+  cycle: {
+    title: "A few moon days.",
+    description: "When it started, when it ended, and how it was.",
+    creator: "",
+  },
+  body: {
+    title: "A weigh-in.",
+    description: "A number, a day, and anything worth noting with it.",
+    creator: "",
   },
 };
 
@@ -181,8 +196,25 @@ export function Composer({
     setError("");
     try {
       const formTitle = new FormData(event.currentTarget).get("title");
-      const submittedTitle =
+      let submittedTitle =
         typeof formTitle === "string" ? formTitle.trim() : draft.title.trim();
+      if (kind === "cycle" || kind === "body") {
+        // Periods and weigh-ins are named by their numbers and days, so
+        // there is no title field to fill.
+        const details = draft.details;
+        submittedTitle =
+          details?.type === "cycle"
+            ? periodTitle(details)
+            : details?.type === "body"
+              ? bodyTitle(details)
+              : "";
+        if (!submittedTitle)
+          throw new Error(
+            kind === "cycle"
+              ? "Choose the day this period started."
+              : "Add the weight in kilograms.",
+          );
+      }
       if (!submittedTitle) throw new Error("Add a title before saving.");
       if (
         kind === "request" &&
@@ -280,153 +312,162 @@ export function Composer({
                 }}
               />
             )}
-            <div className="composer-intro">
-              <div className="image-picker">
-                {image ? (
-                  <img src={image} alt="Selected picture" />
-                ) : (
-                  <div className="image-empty">
-                    <ImagePlus size={28} strokeWidth={1.2} />
-                    <span>Add a picture</span>
-                  </div>
-                )}
-                <input
-                  ref={imageInput}
-                  type="file"
-                  className="sr-only"
-                  aria-label="Upload picture"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(event) => {
-                    void pickImage(event.target.files?.[0]);
-                    event.target.value = "";
-                  }}
-                />
-                <button
-                  type="button"
-                  className="image-pick-button"
-                  onClick={() => imageInput.current?.click()}
-                  disabled={imageBusy || busy}
-                >
-                  {imageBusy ? (
-                    <LoaderCircle size={15} className="spin" />
-                  ) : (
-                    <Upload size={15} />
-                  )}
-                  {image ? "Change picture" : "Upload picture"}
-                </button>
-                {image && (
-                  <button
-                    type="button"
-                    className="image-remove"
-                    aria-label="Remove picture"
-                    disabled={busy || imageBusy}
-                    onClick={() => {
-                      setUploads((current) => ({ ...current, image: null }));
-                      update("image_url", null);
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-              <div className="composer-main-fields">
-                <label>
-                  {kind === "wish"
-                    ? "What is it?"
-                    : kind === "lyric"
-                      ? "Song title"
-                      : kind === "adventure"
-                        ? "Page title"
-                        : kind === "movie_night"
-                          ? "Name this evening"
-                          : kind === "rabbit_hole"
-                            ? "Name this rabbit hole"
-                            : "Title"}
-                  <input
-                    name="title"
-                    autoFocus
-                    value={draft.title}
-                    onChange={(event) => update("title", event.target.value)}
-                    required
-                    maxLength={240}
-                    dir="auto"
-                    placeholder={
-                      kind === "note" ? "A title for this thought" : "Name it"
-                    }
-                  />
-                </label>
-                {copy.creator && (
-                  <label>
-                    {copy.creator}
+            {kind !== "cycle" && kind !== "body" && (
+              <>
+                <div className="composer-intro">
+                  <div className="image-picker">
+                    {image ? (
+                      <img src={image} alt="Selected picture" />
+                    ) : (
+                      <div className="image-empty">
+                        <ImagePlus size={28} strokeWidth={1.2} />
+                        <span>Add a picture</span>
+                      </div>
+                    )}
                     <input
-                      value={draft.creator}
-                      onChange={(event) =>
-                        update("creator", event.target.value)
-                      }
-                      maxLength={180}
-                      dir="auto"
-                      placeholder="Optional"
+                      ref={imageInput}
+                      type="file"
+                      className="sr-only"
+                      aria-label="Upload picture"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(event) => {
+                        void pickImage(event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
                     />
-                  </label>
-                )}
-                {statusOptions[kind].length > 1 && (
-                  <div className="form-grid">
-                    <label>
-                      Status
-                      <select
-                        value={draft.status}
-                        onChange={(event) =>
-                          update("status", event.target.value)
-                        }
+                    <button
+                      type="button"
+                      className="image-pick-button"
+                      onClick={() => imageInput.current?.click()}
+                      disabled={imageBusy || busy}
+                    >
+                      {imageBusy ? (
+                        <LoaderCircle size={15} className="spin" />
+                      ) : (
+                        <Upload size={15} />
+                      )}
+                      {image ? "Change picture" : "Upload picture"}
+                    </button>
+                    {image && (
+                      <button
+                        type="button"
+                        className="image-remove"
+                        aria-label="Remove picture"
+                        disabled={busy || imageBusy}
+                        onClick={() => {
+                          setUploads((current) => ({
+                            ...current,
+                            image: null,
+                          }));
+                          update("image_url", null);
+                        }}
                       >
-                        {statusOptions[kind].map((status) => (
-                          <option key={status}>{status}</option>
-                        ))}
-                      </select>
-                    </label>
-                    {kind === "book" && (
-                      <label>
-                        Format
-                        <select
-                          value={draft.format}
-                          onChange={(event) =>
-                            update("format", event.target.value)
-                          }
-                        >
-                          <option>Book</option>
-                          <option>Audiobook</option>
-                          <option>Ebook</option>
-                        </select>
-                      </label>
-                    )}
-                    {kind === "film" && (
-                      <label>
-                        Type
-                        <select
-                          value={screenType(draft.format)}
-                          onChange={(event) =>
-                            update(
-                              "format",
-                              withScreenType(
-                                draft.format,
-                                event.target.value as ScreenType,
-                              ),
-                            )
-                          }
-                        >
-                          <option value="film">Film</option>
-                          <option value="series">Series</option>
-                        </select>
-                      </label>
+                        <X size={16} />
+                      </button>
                     )}
                   </div>
-                )}
-              </div>
-            </div>
-            <p className="helper image-helper">
-              JPG, PNG, or WebP · up to 5 MB. Pictures are resized for your
-              phone.
-            </p>
+                  <div className="composer-main-fields">
+                    <label>
+                      {kind === "wish"
+                        ? "What is it?"
+                        : kind === "lyric"
+                          ? "Song title"
+                          : kind === "adventure"
+                            ? "Page title"
+                            : kind === "movie_night"
+                              ? "Name this evening"
+                              : "Title"}
+                      <input
+                        name="title"
+                        autoFocus
+                        value={draft.title}
+                        onChange={(event) =>
+                          update("title", event.target.value)
+                        }
+                        required
+                        maxLength={240}
+                        dir="auto"
+                        placeholder={
+                          kind === "note"
+                            ? "A title for this thought"
+                            : "Name it"
+                        }
+                      />
+                    </label>
+                    {copy.creator && (
+                      <label>
+                        {copy.creator}
+                        <input
+                          value={draft.creator}
+                          onChange={(event) =>
+                            update("creator", event.target.value)
+                          }
+                          maxLength={180}
+                          dir="auto"
+                          placeholder="Optional"
+                        />
+                      </label>
+                    )}
+                    {statusOptions[kind].length > 1 && (
+                      <div className="form-grid">
+                        <label>
+                          Status
+                          <select
+                            value={draft.status}
+                            onChange={(event) =>
+                              update("status", event.target.value)
+                            }
+                          >
+                            {statusOptions[kind].map((status) => (
+                              <option key={status}>{status}</option>
+                            ))}
+                          </select>
+                        </label>
+                        {kind === "book" && (
+                          <label>
+                            Format
+                            <select
+                              value={draft.format}
+                              onChange={(event) =>
+                                update("format", event.target.value)
+                              }
+                            >
+                              <option>Book</option>
+                              <option>Audiobook</option>
+                              <option>Ebook</option>
+                            </select>
+                          </label>
+                        )}
+                        {kind === "film" && (
+                          <label>
+                            Type
+                            <select
+                              value={screenType(draft.format)}
+                              onChange={(event) =>
+                                update(
+                                  "format",
+                                  withScreenType(
+                                    draft.format,
+                                    event.target.value as ScreenType,
+                                  ),
+                                )
+                              }
+                            >
+                              <option value="film">Film</option>
+                              <option value="series">Series</option>
+                            </select>
+                          </label>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p className="helper image-helper">
+                  JPG, PNG, or WebP · up to 5 MB. Pictures are resized for your
+                  phone.
+                </p>
+              </>
+            )}
             <label>
               {kind === "request"
                 ? "Why this song?"
@@ -436,11 +477,13 @@ export function Composer({
                     ? "The story of this page"
                     : kind === "movie_night"
                       ? "Anything else for the evening?"
-                      : kind === "rabbit_hole"
-                        ? "What ties it all together?"
-                        : kind === "note"
-                          ? "Your note"
-                          : "A thought to keep"}
+                      : kind === "cycle"
+                        ? "How these days were"
+                        : kind === "body"
+                          ? "Anything with this number"
+                          : kind === "note"
+                            ? "Your note"
+                            : "A thought to keep"}
               <textarea
                 value={draft.note}
                 onChange={(event) => update("note", event.target.value)}

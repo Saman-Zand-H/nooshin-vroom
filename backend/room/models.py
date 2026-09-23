@@ -33,10 +33,12 @@ class RoomEntry(models.Model):
         ("note", "Note"),
         ("film", "Film"),
         ("game", "Game"),
-        ("rabbit_hole", "Rabbit hole"),
         ("movie_night", "Movie night"),
         ("adventure", "Adventure"),
         ("lyric", "Lyric"),
+        ("love", "Little love"),
+        ("cycle", "Moon days"),
+        ("body", "Weigh-in"),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     kind = models.CharField(max_length=32, choices=KIND_CHOICES)

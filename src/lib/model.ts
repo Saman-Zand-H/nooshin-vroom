@@ -14,10 +14,12 @@ export const kinds = [
   "note",
   "film",
   "game",
-  "rabbit_hole",
   "movie_night",
   "adventure",
   "lyric",
+  "love",
+  "cycle",
+  "body",
 ] as const;
 export type Kind = (typeof kinds)[number];
 
@@ -29,10 +31,12 @@ export const statusOptions: Record<Kind, readonly string[]> = {
   note: ["Saved"],
   film: ["Watchlist", "Watching", "Finished"],
   game: ["Want to play", "Playing", "Finished"],
-  rabbit_hole: ["Saved"],
   movie_night: ["Idea", "Planned", "Watched"],
   adventure: ["Someday", "A memory"],
   lyric: ["On the wall"],
+  love: ["Hers"],
+  cycle: ["Tracked"],
+  body: ["Kept"],
 };
 
 export interface Entry {

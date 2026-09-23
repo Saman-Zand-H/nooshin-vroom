@@ -1,6 +1,6 @@
 # IMDb Watchlist import
 
-For Nooshin imports a member's own IMDb title-list CSV into Films & series. The imported titles are available to Watch nights and Rabbit Holes. This is an export snapshot, not an authenticated IMDb connection or automatic synchronization. Current official interface evidence and limitations are in [IMDB_RESEARCH.md](IMDB_RESEARCH.md).
+For Nooshin imports a member's own IMDb title-list CSV into Films & series. The imported titles are available to Watch nights. This is an export snapshot, not an authenticated IMDb connection or automatic synchronization. Current official interface evidence and limitations are in [IMDB_RESEARCH.md](IMDB_RESEARCH.md).
 
 For automatically refreshed public lists, use the separate [IMDb connection](IMDB_CONNECTION.md). Both paths share duplicate detection and preserve personal edits. CSV remains the option for keeping a list private.
 

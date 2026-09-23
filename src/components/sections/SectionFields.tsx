@@ -2,19 +2,21 @@ import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import type { Draft } from "../../lib/model";
 import { useRoom } from "../../lib/room-context";
 import {
+  flows,
   letterings,
   newAdventure,
+  newBody,
+  newCycle,
+  newLove,
   newLyric,
   newMovie,
-  newTrail,
   papers,
   places,
   placeLabels,
   slipSizes,
-  stepKinds,
   type FilmPick,
+  type LoveLine,
   type SectionDetails,
-  type TrailStep,
 } from "../../lib/section-details";
 
 export function SectionFields({
@@ -340,177 +342,222 @@ export function SectionFields({
       </div>
     );
   }
-  if (draft.kind !== "rabbit_hole") return null;
-  const details =
-    draft.details?.type === "rabbit_hole" ? draft.details : newTrail();
-  const sourceEntries = entries.filter((entry) =>
-    ["book", "film", "game", "music", "note", "lyric"].includes(entry.kind),
-  );
-  const changeSteps = (steps: TrailStep[]) => onChange({ ...details, steps });
-  const changeStep = (id: string, patch: Partial<TrailStep>) =>
-    changeSteps(
-      details.steps.map((step) =>
-        step.id === id ? { ...step, ...patch } : step,
-      ),
-    );
-  const move = (index: number, direction: number) => {
-    const steps = [...details.steps];
-    [steps[index], steps[index + direction]] = [
-      steps[index + direction],
-      steps[index],
-    ];
-    changeSteps(steps);
-  };
-  return (
-    <fieldset className="trail-fields">
-      <legend>
-        Follow the connections <span className="optional">2–12 stops</span>
-      </legend>
-      <p className="helper">
-        Start with a song, a book, a character. Explain what takes you to the
-        next one.
-      </p>
-      {details.steps.map((step, index) => (
-        <div className="trail-editor-step" key={step.id}>
-          <div className="step-editor-top">
-            <span>STOP {String(index + 1).padStart(2, "0")}</span>
-            <div>
+  if (draft.kind === "cycle") {
+    const details =
+      draft.details?.type === "cycle" ? draft.details : newCycle();
+    return (
+      <fieldset className="cycle-fields">
+        <legend>
+          These days <span className="optional">the room counts the rest</span>
+        </legend>
+        <div className="form-grid">
+          <label>
+            First day
+            <input
+              type="date"
+              required
+              value={details.started}
+              onChange={(event) =>
+                onChange({ ...details, started: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Last day
+            <input
+              type="date"
+              value={details.ended}
+              onChange={(event) =>
+                onChange({ ...details, ended: event.target.value })
+              }
+            />
+          </label>
+        </div>
+        <fieldset className="chapter-picker flow-picker">
+          <legend>How heavy was it?</legend>
+          <div className="chapter-options" role="group">
+            {flows.map((flow) => (
               <button
+                key={flow}
                 type="button"
-                className="icon-button"
-                disabled={index === 0}
-                aria-label={`Move stop ${index + 1} earlier`}
-                onClick={() => move(index, -1)}
-              >
-                <ArrowUp size={15} />
-              </button>
-              <button
-                type="button"
-                className="icon-button"
-                disabled={index === details.steps.length - 1}
-                aria-label={`Move stop ${index + 1} later`}
-                onClick={() => move(index, 1)}
-              >
-                <ArrowDown size={15} />
-              </button>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label={`Remove stop ${index + 1}`}
+                aria-pressed={details.flow === flow}
+                className={details.flow === flow ? "active" : ""}
                 onClick={() =>
-                  changeSteps(
-                    details.steps.filter((item) => item.id !== step.id),
-                  )
+                  onChange({
+                    ...details,
+                    flow: details.flow === flow ? "" : flow,
+                  })
                 }
               >
-                <X size={16} />
+                {flow[0].toUpperCase() + flow.slice(1)}
               </button>
-            </div>
+            ))}
           </div>
-          {sourceEntries.length > 0 && (
+        </fieldset>
+      </fieldset>
+    );
+  }
+  if (draft.kind === "body") {
+    const details = draft.details?.type === "body" ? draft.details : newBody();
+    return (
+      <fieldset className="cycle-fields">
+        <legend>
+          On the scale <span className="optional">one number, kept simply</span>
+        </legend>
+        <div className="form-grid">
+          <label>
+            Weight (kg)
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="25"
+              max="250"
+              required
+              value={details.weight}
+              placeholder="67.7"
+              onChange={(event) =>
+                onChange({ ...details, weight: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Day
+            <input
+              type="date"
+              value={details.measured_on}
+              onChange={(event) =>
+                onChange({ ...details, measured_on: event.target.value })
+              }
+            />
+          </label>
+        </div>
+      </fieldset>
+    );
+  }
+  if (draft.kind === "love") {
+    const details = draft.details?.type === "love" ? draft.details : newLove();
+    const changeLines = (lines: LoveLine[]) => onChange({ ...details, lines });
+    const move = (index: number, direction: number) => {
+      const lines = [...details.lines];
+      [lines[index], lines[index + direction]] = [
+        lines[index + direction],
+        lines[index],
+      ];
+      changeLines(lines);
+    };
+    return (
+      <fieldset className="love-fields">
+        <legend>
+          The little lines <span className="optional">up to 60</span>
+        </legend>
+        <p className="helper">
+          Memories, words, tiny things — whatever this love collects over time.
+          Either of you can add them.
+        </p>
+        <label className="love-why">
+          Why it’s yours
+          <textarea
+            rows={2}
+            maxLength={700}
+            value={details.why}
+            dir="auto"
+            placeholder="Where this love comes from…"
+            onChange={(event) =>
+              onChange({ ...details, why: event.target.value })
+            }
+          />
+        </label>
+        {details.lines.map((line, index) => (
+          <div className="love-line-editor" key={line.id}>
+            <div className="step-editor-top">
+              <span>LINE {String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <button
+                  type="button"
+                  className="icon-button"
+                  disabled={index === 0}
+                  aria-label={`Move line ${index + 1} earlier`}
+                  onClick={() => move(index, -1)}
+                >
+                  <ArrowUp size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-button"
+                  disabled={index === details.lines.length - 1}
+                  aria-label={`Move line ${index + 1} later`}
+                  onClick={() => move(index, 1)}
+                >
+                  <ArrowDown size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label={`Remove line ${index + 1}`}
+                  onClick={() =>
+                    changeLines(
+                      details.lines.filter((item) => item.id !== line.id),
+                    )
+                  }
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
             <label>
-              Something already in the room
-              <select
-                value={step.entryId || ""}
-                onChange={(event) => {
-                  const entry = sourceEntries.find(
-                    (item) => item.id === event.target.value,
-                  );
-                  changeStep(
-                    step.id,
-                    entry
-                      ? {
-                          entryId: entry.id,
-                          title: entry.title,
-                          kind: stepKinds.includes(
-                            entry.kind as TrailStep["kind"],
-                          )
-                            ? (entry.kind as TrailStep["kind"])
-                            : "quote",
-                        }
-                      : { entryId: null },
-                  );
-                }}
-              >
-                <option value="">Write your own stop</option>
-                {sourceEntries.map((entry) => (
-                  <option value={entry.id} key={entry.id}>
-                    {entry.title} · {entry.kind}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <div className="form-grid">
-            <label>
-              Stop {index + 1} title
-              <input
-                value={step.title}
+              A memory, a word, a tiny thing
+              <textarea
+                rows={2}
                 required
-                maxLength={240}
+                maxLength={400}
                 dir="auto"
-                placeholder="A thing that leads somewhere"
+                value={line.text}
+                placeholder="Something small worth keeping…"
                 onChange={(event) =>
-                  changeStep(step.id, {
-                    title: event.target.value,
-                    entryId: null,
-                  })
+                  changeLines(
+                    details.lines.map((item) =>
+                      item.id === line.id
+                        ? { ...item, text: event.target.value }
+                        : item,
+                    ),
+                  )
                 }
               />
             </label>
             <label>
-              Kind
-              <select
-                value={step.kind}
+              A date, if it has one
+              <input
+                type="date"
+                value={line.when}
                 onChange={(event) =>
-                  changeStep(step.id, {
-                    kind: event.target.value as TrailStep["kind"],
-                  })
+                  changeLines(
+                    details.lines.map((item) =>
+                      item.id === line.id
+                        ? { ...item, when: event.target.value }
+                        : item,
+                    ),
+                  )
                 }
-              >
-                {stepKinds.map((kind) => (
-                  <option key={kind}>{kind}</option>
-                ))}
-              </select>
+              />
             </label>
           </div>
-          <label>
-            {index === 0
-              ? "What starts the trail?"
-              : "Why does this follow the previous stop?"}
-            <textarea
-              rows={2}
-              maxLength={700}
-              value={step.reason}
-              dir="auto"
-              onChange={(event) =>
-                changeStep(step.id, { reason: event.target.value })
-              }
-              placeholder="The connection only you would make…"
-            />
-          </label>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="text-button"
-        disabled={details.steps.length >= 12}
-        onClick={() =>
-          changeSteps([
-            ...details.steps,
-            {
-              id: crypto.randomUUID(),
-              title: "",
-              kind: "idea",
-              reason: "",
-              entryId: null,
-            },
-          ])
-        }
-      >
-        <Plus size={16} />
-        Add a stop
-      </button>
-    </fieldset>
-  );
+        ))}
+        <button
+          type="button"
+          className="text-button"
+          disabled={details.lines.length >= 60}
+          onClick={() =>
+            changeLines([
+              ...details.lines,
+              { id: crypto.randomUUID(), text: "", when: "" },
+            ])
+          }
+        >
+          <Plus size={16} />
+          Add a little line
+        </button>
+      </fieldset>
+    );
+  }
 }

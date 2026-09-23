@@ -255,9 +255,8 @@ Before private launch: provision PostgreSQL, run `python backend/manage.py migra
 
 The user approved the current appearance. Keep it while extending the app. Digital letters/postbox were rejected because letters deserve to be physical.
 
-Implemented four new corners, accessible from Home and the header Explore shortcut:
+Implemented four new corners, accessible from Home and the header Explore shortcut. Rabbit holes were later removed entirely (2026-09-24): the kind, entries, events, and all UI are gone; migration `0014_remove_rabbit_holes` deletes the data on deploy.
 
-- **Rabbit Holes** (`/rabbit-holes`): authored trails with 2–12 stops, personal connection notes, and optional links to saved items. Constellation on desktop, connected list on mobile.
 - **Watch nights** (`/watch-nights`): supports films or series, solo or together viewing, defaults to Nooshin’s place for solo evenings, and offers Saman’s place, Cinema, and Somewhere else. Saves shortlist, selected title, date/time, snacks, notes, and past evenings.
 - **Our Adventure Book** (`/adventure-book`): an original stitched scrapbook inspired by _Up_, with a cover, photos, stories, places/dates, page turning, and Someday / Our memories filters.
 - **Wall of Lyrics** (`/lyric-wall`): recreation of her physical lyric wall through user-entered words, photos, four paper colours, three lettering styles/sizes, and persistent arrangement by dragging or arrow buttons. Never auto-fetch or seed lyrics.
@@ -286,7 +285,7 @@ Verification: a full unauthenticated public reference read returned 2,155 titles
 - Imported music uses `spotify:<22-character track ID>` and a canonical `open.spotify.com/track/...` link. Local IndexedDB and cloud migration `0008_spotify_liked_songs.sql` both skip imported IDs and manually added matching track links. Re-sync never overwrites titles, artists, status, notes, or uploaded pictures; unliking never deletes a room song. Page batches are resumable and bounded at 50,000 tracks with an explicit error rather than truncation.
 - Spotify save timestamps, album names, and release years are stored separately by migration `0009_spotify_song_metadata.sql`. `/songs` sorts all music by provider save date descending, then manual additions by their room date, and shows multiple factual stats sections: totals, unique artists, album coverage, one-song discoveries, save years and months, top artists/albums, release eras, newest saves, listening fingerprints, and oldest/newest save span. It does not infer play counts or moods.
 - Django owns Spotify OAuth in local and hosted mode. The Ninja API exposes the same paginated `liked` action, Fernet-encrypts server-side tokens, and keeps provider secrets in `backend/.env` or deployment secrets. The Vite server does not call Spotify directly.
-- Application navigation uses clean paths from `src/lib/routes.ts`: `/books`, `/songs`, `/films-and-series`, `/games`, `/setlist`, `/wishes`, `/notes`, `/connections`, `/corners`, `/rabbit-holes`, `/watch-nights`, `/adventure-book`, and `/lyric-wall`. Internal links use `history.pushState`, Back/Forward uses `popstate`, and old route hashes migrate once. The generated `404.html` plus external `route-fallback.js` preserves direct routes on GitHub Pages and respects `VITE_BASE_PATH`. Django password-recovery query parameters and the `#main-content` accessibility anchor are not application routing.
+- Application navigation uses clean paths from `src/lib/routes.ts`: `/books`, `/songs`, `/films-and-series`, `/games`, `/setlist`, `/wishes`, `/notes`, `/connections`, `/corners`, `/watch-nights`, `/adventure-book`, `/lyric-wall`, and `/little-loves`. Internal links use `history.pushState`, Back/Forward uses `popstate`, and old route hashes migrate once. The generated `404.html` plus external `route-fallback.js` preserves direct routes on GitHub Pages and respects `VITE_BASE_PATH`. Django password-recovery query parameters and the `#main-content` accessibility anchor are not application routing.
 - Browser verification covers full paginated import, a manual-link duplicate retaining edits, a repeat sync adding zero songs, direct clean paths, Back, legacy hash migration, stats sections, chronological ordering, and 390px layout. Migrations `0008` and `0009` were applied with `0001`–`0007` in isolated PostgreSQL; role denial, counts, rollback, attribution, duplicate skipping, metadata enrichment, and edit preservation passed.
 
 ## Constraints and preferences
@@ -313,3 +312,10 @@ Verification: a full unauthenticated public reference read returned 2,155 titles
 - Keep implementation incremental and build/test each slice.
 - Do not store secrets in the repository.
 - No external model consultation or OpenRouter usage.
+
+## Moon days and real data (2026-09-24)
+
+- The local PostgreSQL database now holds **real user data**: 11 cycle entries logged by Nooshin (Sep 2025 – Aug 2026) and her real weigh-in (67.7 kg, 2026-09-24). These are NOT test data — never delete or overwrite them in cleanup. Any verification entry created through the UI must be removed by its own specific id, never by kind-wide filters like `kind='cycle'` or by date patterns that might match her records.
+- Her cycle entries record whole cycles: `started` is the first day of the period, `ended` is the day the next one began (or the day before). The Moon days display understands this: period shading is capped at ten days per entry, and spans longer than that are shown in history as "N-day cycle" records rather than one long period.
+- Cycle predictions average the last six gaps between starts (gaps outside 15–60 days ignored); with fewer than two logged starts they fall back to her usual 29 days. The wheel also shows cycle phases (period / follicular / around ovulation / luteal), with ovulation estimated 14 days before the next expected period.
+- She goes to the gym regularly, but deliberately no gym or exercise feature exists; the weigh-in log is the only body tracking.

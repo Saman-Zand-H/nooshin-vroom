@@ -48,10 +48,6 @@ const emptyCopy: Record<Kind, { heading: string; body: string }> = {
     heading: "Which world are you disappearing into?",
     body: "Keep the games you love and the ones you’re about to make yours.",
   },
-  rabbit_hole: {
-    heading: "Show me where your mind went.",
-    body: "Connect the song, idea, character, or story that led to the next one.",
-  },
   movie_night: {
     heading: "What should you watch tonight?",
     body: "Plan a film or a few episodes, on your own or beside me.",
@@ -63,6 +59,10 @@ const emptyCopy: Record<Kind, { heading: string; body: string }> = {
   lyric: {
     heading: "Which words stayed?",
     body: "Pin the lines that sound like you when you say them.",
+  },
+  love: {
+    heading: "What does she keep close?",
+    body: "Start with one small love and its story.",
   },
   music: {
     heading: "Send me the song.",
@@ -79,6 +79,14 @@ const emptyCopy: Record<Kind, { heading: string; body: string }> = {
   note: {
     heading: "Something I wanted you to have.",
     body: "Save a photo, a thought, or a small piece of your day.",
+  },
+  cycle: {
+    heading: "Nothing kept yet.",
+    body: "Log a period from Moon days and it will show up here.",
+  },
+  body: {
+    heading: "Nothing kept yet.",
+    body: "Log a weigh-in from Moon days and it will show up here.",
   },
 };
 

@@ -14,10 +14,12 @@ STATUS_OPTIONS = {
     "note": {"Saved"},
     "film": {"Watchlist", "Watching", "Finished"},
     "game": {"Want to play", "Playing", "Finished"},
-    "rabbit_hole": {"Saved"},
     "movie_night": {"Idea", "Planned", "Watched"},
     "adventure": {"Someday", "A memory"},
     "lyric": {"On the wall"},
+    "love": {"Hers"},
+    "cycle": {"Tracked"},
+    "body": {"Kept"},
 }
 KINDS = set(STATUS_OPTIONS)
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}

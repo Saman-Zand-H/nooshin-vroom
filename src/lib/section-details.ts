@@ -13,32 +13,11 @@ export const placeLabels: Record<(typeof places)[number], string> = {
 export const papers = ["parchment", "rose", "lavender", "midnight"] as const;
 export const letterings = ["handwritten", "serif", "typewriter"] as const;
 export const slipSizes = ["small", "medium", "large"] as const;
-export const stepKinds = [
-  "music",
-  "book",
-  "film",
-  "game",
-  "character",
-  "quote",
-  "place",
-  "idea",
-] as const;
 
-export interface TrailStep {
-  id: string;
-  title: string;
-  kind: (typeof stepKinds)[number];
-  reason: string;
-  entryId: string | null;
-}
 export interface FilmPick {
   id: string;
   title: string;
   entryId: string | null;
-}
-export interface TrailDetails {
-  type: "rabbit_hole";
-  steps: TrailStep[];
 }
 export interface MovieDetails {
   type: "movie_night";
@@ -63,16 +42,46 @@ export interface LyricDetails {
   size: (typeof slipSizes)[number];
   position: number;
 }
+export interface LoveLine {
+  id: string;
+  text: string;
+  when: string;
+}
+export interface LoveDetails {
+  type: "love";
+  why: string;
+  lines: LoveLine[];
+}
+export const flows = ["light", "medium", "heavy"] as const;
+export interface CycleDetails {
+  type: "cycle";
+  started: string;
+  ended: string;
+  flow: (typeof flows)[number] | "";
+}
+export interface BodyDetails {
+  type: "body";
+  weight: string;
+  measured_on: string;
+}
 export type SectionDetails =
-  TrailDetails | MovieDetails | AdventureDetails | LyricDetails;
+  | MovieDetails
+  | AdventureDetails
+  | LyricDetails
+  | LoveDetails
+  | CycleDetails
+  | BodyDetails;
 export type SectionKind = SectionDetails["type"];
 export function isSectionKind(kind: string): kind is SectionKind {
-  return ["rabbit_hole", "movie_night", "adventure", "lyric"].includes(kind);
+  return [
+    "movie_night",
+    "adventure",
+    "lyric",
+    "love",
+    "cycle",
+    "body",
+  ].includes(kind);
 }
-export const newTrail = (): TrailDetails => ({
-  type: "rabbit_hole",
-  steps: [],
-});
 export const newMovie = (): MovieDetails => ({
   type: "movie_night",
   audience: "solo",
@@ -96,16 +105,36 @@ export const newLyric = (): LyricDetails => ({
   size: "medium",
   position: Date.now(),
 });
+export const newLove = (): LoveDetails => ({
+  type: "love",
+  why: "",
+  lines: [],
+});
+export const newCycle = (): CycleDetails => ({
+  type: "cycle",
+  started: new Date().toLocaleDateString("en-CA"),
+  ended: "",
+  flow: "",
+});
+export const newBody = (): BodyDetails => ({
+  type: "body",
+  weight: "",
+  measured_on: new Date().toLocaleDateString("en-CA"),
+});
 export function newDetails(kind: string): SectionDetails | null {
-  return kind === "rabbit_hole"
-    ? newTrail()
-    : kind === "movie_night"
-      ? newMovie()
-      : kind === "adventure"
-        ? newAdventure()
-        : kind === "lyric"
-          ? newLyric()
-          : null;
+  return kind === "movie_night"
+    ? newMovie()
+    : kind === "adventure"
+      ? newAdventure()
+      : kind === "lyric"
+        ? newLyric()
+        : kind === "love"
+          ? newLove()
+          : kind === "cycle"
+            ? newCycle()
+            : kind === "body"
+              ? newBody()
+              : null;
 }
 function text(value: unknown, limit: number, required = false): string {
   if (
@@ -158,23 +187,6 @@ export function validateDetails(
   const data = object(value);
   if (data.type !== kind)
     throw new Error("The section details do not match this item.");
-  if (kind === "rabbit_hole") {
-    const steps = list(data.steps, 12).map((item) => {
-      const step = object(item);
-      return {
-        id: identifier(step.id),
-        title: text(step.title, 240, true),
-        kind: option(step.kind, stepKinds),
-        reason: text(step.reason, 700),
-        entryId: step.entryId === null ? null : identifier(step.entryId),
-      };
-    });
-    if (steps.length < 2)
-      throw new Error("Add at least two stops to this rabbit hole.");
-    if (new Set(steps.map((step) => step.id)).size !== steps.length)
-      throw new Error("Each stop needs its own identity.");
-    return { type: kind, steps };
-  }
   if (kind === "movie_night") {
     const films = list(data.films, 8).map((item) => {
       const pick = object(item);
@@ -218,6 +230,51 @@ export function validateDetails(
           ? "after"
           : option(data.chapter, ["before", "after"] as const),
     };
+  if (kind === "love") {
+    const lines = list(data.lines, 60).map((item) => {
+      const line = object(item);
+      return {
+        id: identifier(line.id),
+        text: text(line.text, 400, true),
+        when: date(line.when),
+      };
+    });
+    if (new Set(lines.map((line) => line.id)).size !== lines.length)
+      throw new Error("Each little line needs its own identity.");
+    return {
+      type: kind,
+      why: text(data.why, 700),
+      lines,
+    };
+  }
+  if (kind === "cycle") {
+    const started = date(data.started);
+    if (!started) throw new Error("Choose the day this period started.");
+    const ended = date(data.ended);
+    if (ended && ended < started)
+      throw new Error("The last day cannot come before the first.");
+    return {
+      type: kind,
+      started,
+      ended,
+      flow:
+        data.flow === undefined || data.flow === ""
+          ? ""
+          : option(data.flow, flows),
+    };
+  }
+  if (kind === "body") {
+    const weight = text(data.weight, 6);
+    if (!weight) throw new Error("Add the weight in kilograms.");
+    if (!/^\d{2,3}(\.\d)?$/.test(weight) || +weight < 25 || +weight > 250)
+      throw new Error("Give the weight in kilograms, like 67.7.");
+    return {
+      type: kind,
+      weight,
+      measured_on:
+        date(data.measured_on) || new Date().toLocaleDateString("en-CA"),
+    };
+  }
   if (
     typeof data.position !== "number" ||
     !Number.isFinite(data.position) ||
@@ -241,4 +298,28 @@ export function readableDate(value: string) {
         year: "numeric",
       }).format(new Date(`${value}T12:00:00`))
     : "No date chosen";
+}
+
+// A period names itself after its days, so the composer never asks for one.
+export function periodTitle(details: CycleDetails): string {
+  if (!details.started) return "";
+  const short = new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+  });
+  const start = short.format(new Date(`${details.started}T12:00:00`));
+  return details.ended
+    ? `${start} – ${short.format(new Date(`${details.ended}T12:00:00`))}`
+    : start;
+}
+
+// A weigh-in is named by its number, with its day when there is one.
+export function bodyTitle(details: BodyDetails): string {
+  if (!details.weight) return "";
+  return details.measured_on
+    ? `${details.weight} kg · ${new Intl.DateTimeFormat("en", {
+        day: "numeric",
+        month: "short",
+      }).format(new Date(`${details.measured_on}T12:00:00`))}`
+    : `${details.weight} kg`;
 }
