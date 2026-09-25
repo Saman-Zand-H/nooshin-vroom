@@ -492,6 +492,9 @@ export function MoonDays({ onAdd, onEdit }: SectionActions) {
               {[...periods].reverse().map(({ entry, details }) => {
                 const span = spanOf(details);
                 // A span over ten days is a whole-cycle record, not one period.
+                // Its own first-to-last span is that cycle's length; a short
+                // entry is one period inside a cycle measured from the
+                // previous start to this one.
                 const onePeriod = span !== null && span <= PERIOD_MAX_DAYS;
                 const cycle = cycleLengths.get(entry.id);
                 return (
@@ -507,9 +510,7 @@ export function MoonDays({ onAdd, onEdit }: SectionActions) {
                           ? `${span} days`
                           : span === null
                             ? "Cycle still open"
-                            : cycle
-                              ? `${cycle}-day cycle`
-                              : "Whole cycle kept"}
+                            : `${span}-day cycle`}
                         {details.flow && ` · ${cap(details.flow)}`}
                         {cycle && onePeriod && ` · ${cycle}-day cycle`}
                       </p>
