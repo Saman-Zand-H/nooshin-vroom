@@ -45,8 +45,13 @@ services:
       SPOTIFY_REDIRECT_URI: ${SPOTIFY_REDIRECT_URI:-}
       SPOTIFY_REDIRECT_URIS: ${SPOTIFY_REDIRECT_URIS:-}
       SPOTIFY_TOKEN_KEY: ${SPOTIFY_TOKEN_KEY:-}
+      JAMENDO_CLIENT_ID: ${JAMENDO_CLIENT_ID:-}
       IMDB_WATCHLIST_QUERY_HASH: ${IMDB_WATCHLIST_QUERY_HASH:-}
       IMDB_WATCHLIST_ENABLED: ${IMDB_WATCHLIST_ENABLED:-true}
+      # Optional egress proxy for networks without direct internet; empty means direct.
+      HTTP_PROXY: ${BACKEND_HTTP_PROXY:-}
+      HTTPS_PROXY: ${BACKEND_HTTP_PROXY:-}
+      NO_PROXY: localhost,127.0.0.1,db
     depends_on:
       db:
         condition: service_healthy

@@ -30,6 +30,7 @@ import {
 import { routeHref } from "../lib/routes";
 import { SpotifyStats } from "./SpotifyStats";
 import { Bookcase } from "./Bookcase";
+import { SongDownload } from "./SongDownload";
 
 interface Actions {
   onAdd: (kind: Kind) => void;
@@ -446,6 +447,7 @@ export function Collection({
                   <ArrowUpRight size={16} />
                 </a>
               )}
+              {kind === "music" && <SongDownload entry={entry} />}
             </article>
           ))}
         </div>

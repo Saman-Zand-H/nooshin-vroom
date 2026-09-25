@@ -1128,6 +1128,32 @@ a svg {
 .entry-link {
   font-size: 11px;
 }
+.entry-download {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 2px;
+}
+.entry-download .text-button {
+  font-size: 11px;
+}
+.entry-download-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--dim);
+  padding: 4px 0;
+}
+.entry-download-note .text-button {
+  font-size: 11px;
+  padding: 0;
+  margin-left: 6px;
+}
+.entry-download-note a {
+  color: var(--rose);
+}
+.entry-download-note a:hover {
+  color: var(--ink);
+}
 .item-note {
   padding: 21px;
   background: #d6c8b3;

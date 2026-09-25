@@ -54,6 +54,7 @@ class RoomEntry(models.Model):
     image_file = models.FileField(upload_to="room/images/%Y/%m/", blank=True, null=True)
     recording_file = models.FileField(upload_to="room/recordings/%Y/%m/", blank=True, null=True)
     recording_type = models.CharField(max_length=80, blank=True, null=True)
+    song_file = models.FileField(upload_to="room/songs/%Y/%m/", blank=True, null=True)
     source_id = models.CharField(max_length=200, blank=True, null=True)
     provider_added_at = models.DateTimeField(blank=True, null=True)
     provider_album = models.CharField(max_length=240, blank=True, null=True)

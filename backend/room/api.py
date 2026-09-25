@@ -3,7 +3,7 @@ from ninja import NinjaAPI
 from ninja.errors import HttpError
 from ninja.security import APIKeyCookie
 
-from . import auth_views, bookshelf_views, imdb_views, spotify_views, views
+from . import auth_views, bookshelf_views, imdb_views, song_views, spotify_views, views
 from .auth_views import member_for
 
 api = NinjaAPI(
@@ -166,6 +166,26 @@ def spotify_liked(request):
 @api.get("/spotify/listening/", auth=member_auth)
 def spotify_listening(request):
     return spotify_views.listening(request)
+
+
+@api.get("/songs/{entry_id}/download/", auth=member_auth)
+def song_download(request, entry_id):
+    return song_views.lookup(request, entry_id)
+
+
+@api.get("/songs/{entry_id}/download/file/", auth=member_auth)
+def song_download_file(request, entry_id):
+    return song_views.file(request, entry_id)
+
+
+@api.post("/songs/{entry_id}/upload/", auth=member_auth)
+def song_upload(request, entry_id):
+    return song_views.upload(request, entry_id)
+
+
+@api.post("/songs/{entry_id}/upload/remove/", auth=member_auth)
+def song_upload_remove(request, entry_id):
+    return song_views.remove(request, entry_id)
 
 
 @api.get("/imdb/status/", auth=member_auth)
