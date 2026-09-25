@@ -5,8 +5,8 @@ import {
   Headphones,
   Home as HomeIcon,
   Moon,
+  MoonStar,
   Settings,
-  Sparkles,
   Ticket,
   Compass,
 } from "lucide-react";
@@ -40,8 +40,10 @@ const navigation: { id: View; label: string; icon: typeof HomeIcon }[] = [
   { id: "library", label: "Bookshelf", icon: BookOpen },
   { id: "listen", label: "Listening", icon: Headphones },
   { id: "requests", label: "Setlist", icon: Ticket },
-  { id: "vault", label: "Little wishes", icon: Sparkles },
+  { id: "adventures", label: "Adventure book", icon: Compass },
+  { id: "moon-days", label: "Moon days", icon: MoonStar },
 ];
+const navViewIds = new Set(navigation.map(({ id }) => id));
 const viewKinds: Record<string, Kind> = {
   library: "book",
   listen: "music",
@@ -189,7 +191,11 @@ function Room() {
             href={routeHref("explore")}
             className="icon-button"
             aria-label="Explore more rooms"
-            aria-current={extraViews.includes(view) ? "page" : undefined}
+            aria-current={
+              extraViews.includes(view) && !navViewIds.has(view)
+                ? "page"
+                : undefined
+            }
           >
             <Compass size={20} strokeWidth={1.3} />
           </a>
@@ -260,7 +266,7 @@ function Room() {
             }
           >
             <Icon size={20} strokeWidth={1.5} />
-            <span>{label === "Little wishes" ? "Wishes" : label}</span>
+            <span>{label}</span>
           </a>
         ))}
       </nav>
