@@ -53,7 +53,8 @@ class Command(BaseCommand):
             if not membership_created:
                 if (
                     member.slot != options["slot"]
-                    and RoomMember.objects.filter(slot=options["slot"]).exclude(user=user).exists()  # pyrefly: ignore [missing-attribute]
+                    # pyrefly: ignore [missing-attribute]
+                    and RoomMember.objects.filter(slot=options["slot"]).exclude(user=user).exists()
                 ):
                     raise CommandError("That room slot already belongs to the other member.")
                 member.display_name = options["display_name"].strip()
