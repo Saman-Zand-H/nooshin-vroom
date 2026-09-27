@@ -114,6 +114,12 @@ export const djangoAuth = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password, confirm }),
     }),
+  changePassword: (current: string, password: string, confirm: string) =>
+    djangoRequest<{ ok: true }>("/api/auth/password/change/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ current, password, confirm }),
+    }),
   recover: (email: string) =>
     djangoRequest<{ message: string }>("/api/auth/password-reset/", {
       method: "POST",

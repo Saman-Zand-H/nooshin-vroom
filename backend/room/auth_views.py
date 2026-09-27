@@ -1,7 +1,12 @@
 import json
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout,
+    update_session_auth_hash,
+)
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.cache import cache
@@ -115,6 +120,30 @@ def password(request):
     if not form.is_valid():
         return JsonResponse({"error": "Choose a password of at least 12 characters."}, status=400)
     form.save()
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+@csrf_protect
+def password_change(request):
+    if not request.user.is_authenticated or member_for(request) is None:
+        return JsonResponse({"error": "Sign in required."}, status=401)
+    data = body(request)
+    current = data.get("current")
+    if not isinstance(current, str) or not request.user.check_password(current):
+        return JsonResponse(
+            {"error": "That is not the password currently on the room."}, status=400
+        )
+    form = SetPasswordForm(
+        request.user,
+        {"new_password1": data.get("password", ""), "new_password2": data.get("confirm", "")},
+    )
+    if not form.is_valid():
+        return JsonResponse({"error": "Choose a password of at least 12 characters."}, status=400)
+    form.save()
+    # Saving the form rehashes the password, which signs out every session
+    # unless this one is re-authorized against the new hash.
+    update_session_auth_hash(request, request.user)
     return JsonResponse({"ok": True})
 
 

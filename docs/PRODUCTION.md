@@ -19,6 +19,7 @@ secret values in production.
 ## Staging acceptance
 
 - Both invited users can sign in, recover a password, and are denied when not listed in `RoomMember`.
+- A signed-in member can change their password from the settings page by confirming the current one; a wrong current password is rejected, the signed-in session survives the change, and the old password no longer works.
 - A signed-out browser sees only the entryway; direct paths, refreshes, and the PWA shell never render room data without an authenticated member session. A production build cannot be created without Django API configuration.
 - A book, song, wish, note, film, game, and violin request can be created, edited, removed, and viewed by both members.
 - IMDb import adds selected titles once and re-imports preserve personal notes, ratings, watched status, and artwork. Test the RPC with both invited users; no external account login is involved.

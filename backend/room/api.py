@@ -63,6 +63,11 @@ def auth_password(request):
     return auth_views.password(request)
 
 
+@api.post("/auth/password/change/")
+def auth_password_change(request):
+    return auth_views.password_change(request)
+
+
 @api.post("/auth/password-reset/")
 def auth_password_reset(request):
     return auth_views.password_reset(request)

@@ -1611,6 +1611,17 @@ a svg {
   max-width: 200px;
   flex-shrink: 0;
 }
+.setting-form {
+  margin-top: 18px;
+  max-width: 420px;
+}
+.setting-form .setting-form-actions {
+  display: flex;
+  gap: 12px;
+}
+.setting-form .setting-form-actions .button {
+  max-width: none;
+}
 .setting-label {
   color: var(--gold);
   font-size: 11px;

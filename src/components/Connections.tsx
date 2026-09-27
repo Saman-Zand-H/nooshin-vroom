@@ -1,6 +1,8 @@
-import { ArrowUpRight, Headphones, LogOut } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { ArrowUpRight, Headphones, KeyRound, LogOut } from "lucide-react";
 import { useRoom } from "../lib/room-context";
 import { useSpotify } from "../lib/spotify";
+import { DjangoApiError, djangoAuth } from "../lib/django";
 import { ImdbConnectionCard } from "./ImdbConnection";
 import { SpotifyConnectButton } from "./SpotifyConnectButton";
 import { useSpotifyLibrarySyncState } from "../lib/spotify-sync";
@@ -67,6 +69,7 @@ export function Connections() {
         )}
       </section>
       <ImdbConnectionCard />
+      {!local && <ChangePasswordRow />}
       {!local && (
         <section className="setting-row">
           <LogOut size={24} strokeWidth={1.5} />
@@ -84,5 +87,113 @@ export function Connections() {
         </section>
       )}
     </div>
+  );
+}
+
+function ChangePasswordRow() {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const password = String(data.get("password"));
+    const confirm = String(data.get("confirm"));
+    if (password !== confirm) {
+      setError("The two passwords don’t match.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await djangoAuth.changePassword(
+        String(data.get("current")),
+        password,
+        confirm,
+      );
+      setOpen(false);
+      setSaved(true);
+    } catch (cause) {
+      setError(
+        cause instanceof DjangoApiError
+          ? cause.message
+          : "Check your connection and try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="setting-row">
+      <KeyRound size={24} strokeWidth={1.5} />
+      <div>
+        <h2>Your key to the room</h2>
+        <p>Choose a new password whenever you like; the room stays yours.</p>
+        {saved && !open && <small role="status">Password updated.</small>}
+        {open && (
+          <form className="setting-form" onSubmit={submit}>
+            <label>
+              Current password
+              <input
+                type="password"
+                name="current"
+                autoComplete="current-password"
+                required
+              />
+            </label>
+            <label>
+              New password
+              <input
+                type="password"
+                name="password"
+                minLength={12}
+                autoComplete="new-password"
+                required
+              />
+            </label>
+            <label>
+              Confirm password
+              <input
+                type="password"
+                name="confirm"
+                minLength={12}
+                autoComplete="new-password"
+                required
+              />
+            </label>
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
+            <div className="setting-form-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setOpen(false)}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+              <button className="button primary" disabled={busy}>
+                {busy ? "Saving…" : "Save password"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+      {!open && (
+        <button
+          className="button secondary"
+          onClick={() => {
+            setOpen(true);
+            setSaved(false);
+          }}
+        >
+          Change password
+        </button>
+      )}
+    </section>
   );
 }
