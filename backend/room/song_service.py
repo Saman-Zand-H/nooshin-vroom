@@ -21,6 +21,7 @@ twice the card's words and a matching duration is delivered as the
 closest version, after every credited candidate has failed.
 """
 
+import logging
 import re
 import time
 import unicodedata
@@ -57,8 +58,13 @@ LOOKUP_TTL_SECONDS = 24 * 60 * 60
 # full catalog TTL.
 YOUTUBE_URL_TTL_SECONDS = 3 * 60 * 60
 YOUTUBE_RESULTS_PER_QUERY = 8
+# A miss usually means a source that was unreachable this minute, not a
+# song that does not exist, so it must not sit in the cache for a day.
+MISS_TTL_SECONDS = 30 * 60
 USER_AGENT = "for-nooshin-room/1.0"
 APP_NAME = "for-nooshin-room"
+
+logger = logging.getLogger(__name__)
 
 TITLE_GATE = 60.0
 ARTIST_GATE = 60.0
@@ -72,7 +78,7 @@ EARLY_EXIT_SCORE = 90.0
 # entry id -> (expires_at, payload); the catalogs' answers rarely change,
 # so repeat clicks on a card cost nothing. The version shadows verdicts
 # from an older matcher.
-_CACHE_VERSION = 5
+_CACHE_VERSION = 6
 _lookup_cache = {}
 
 
@@ -559,7 +565,7 @@ def _archive_item_candidates(identifier, item_title, entry):
             response.raise_for_status()
             metadata = response.json()
             break
-        except (requests.RequestException, ValueError):
+        except requests.RequestException, ValueError:
             if attempt:
                 return []
     if not metadata:
@@ -773,7 +779,10 @@ def _youtube_extract(options: dict[str, Any], target: str) -> Any | None:
         # yt-dlp's TypedDict shape.
         with yt_dlp.YoutubeDL(options) as ydl:  # pyrefly: ignore [bad-argument-type]
             return ydl.extract_info(target, download=False)
-    except Exception:
+    except Exception as error:
+        # Surfaced in the backend logs so a blocked server explains its
+        # misses instead of hiding them.
+        logger.warning("yt-dlp failed for %s: %s", target, str(error)[:200])
         return None
 
 
@@ -827,7 +836,11 @@ def _youtube_uncredited_score(entry, title, seconds):
     if want != have and len(have) > 2 * len(want):
         return None
     duration = _duration_score(entry, seconds)
-    if duration is None or duration < 15.0:
+    if duration is None:
+        # Without duration evidence there is no second signal, so only
+        # an exactly named upload may pass.
+        return score if want == have else None
+    if duration < 15.0:
         return None
     return (score + duration) / 2
 
@@ -872,16 +885,18 @@ def _youtube_match(entry):
             seen.add(video_id)
             title = result.get("title") or ""
             seconds = result.get("duration")
-            # Music surfaces as "Artist - Topic" and "ArtistVEVO" uploads;
-            # both fields together give the matcher its artist evidence.
-            artist = " ".join(
+            channel = " ".join(
                 part for part in [result.get("uploader"), result.get("channel")] if part
             )
+            # Topic and VEVO uploads carry the credit in the channel name;
+            # lyric and reupload channels carry it in the title. Both feed
+            # the artist evidence, as in spotDL's matcher.
+            evidence = " ".join([channel, title]).strip()
             candidates.append((video_id, title, seconds))
-            score = _candidate_score(entry, title, artist, seconds, title)
+            score = _candidate_score(entry, title, evidence, seconds, title)
             if score is None:
                 continue
-            found = _found("youtube", entry, title, artist, "")
+            found = _found("youtube", entry, entry.title, entry.creator, "")
             found["page"] = f"https://www.youtube.com/watch?v={video_id}"
             if best.add(*_scored(found, score, title, entry.title)):
                 done = True
@@ -906,6 +921,11 @@ def _youtube_resolve(found: dict[str, Any]) -> dict[str, Any] | None:
         **(fmt.get("http_headers") or {}),
     }
     found["content_type"] = _YOUTUBE_CONTENT_TYPES.get(fmt.get("ext") or "", "")
+    # YouTube ties the stream url to the ip that resolved it, so the
+    # download must leave through the same proxy the resolution did.
+    proxy = getattr(settings, "YTDLP_PROXY", "")
+    if proxy:
+        found["proxy"] = proxy
     return found
 
 
@@ -928,7 +948,12 @@ def lookup_song(entry):
     )
     if not payload:
         payload = {"status": "miss"}
-    ttl = YOUTUBE_URL_TTL_SECONDS if payload.get("source") == "youtube" else LOOKUP_TTL_SECONDS
+    if payload.get("source") == "youtube":
+        ttl = YOUTUBE_URL_TTL_SECONDS
+    elif payload.get("status") == "miss":
+        ttl = MISS_TTL_SECONDS
+    else:
+        ttl = LOOKUP_TTL_SECONDS
     _lookup_cache[key] = (now + ttl, payload)
     return payload
 
@@ -969,15 +994,20 @@ def download_filename(payload, content_type=""):
 def fetch_source_file(payload):
     """Stream the source file, or raise SongSourceError.
 
-    yt-dlp verdicts carry the headers YouTube expects alongside the url;
-    catalog verdicts have none and keep the room's user agent.
+    yt-dlp verdicts carry the headers YouTube expects alongside the url
+    and the proxy that resolved it, because the stream is bound to that
+    exit ip; catalog verdicts have neither and keep the room's user agent.
     """
+    proxy = payload.get("proxy") or ""
     try:
         response = requests.get(
             payload["file"],
             headers={"User-Agent": USER_AGENT, **(payload.get("headers") or {})},
+            proxies={"http": proxy, "https": proxy} if proxy else None,
             stream=True,
-            timeout=FILE_TIMEOUT,
+            # A proxied connection spends its connect budget on the socks
+            # handshake before TLS starts, and home proxies are slow.
+            timeout=(15.05, 60) if proxy else FILE_TIMEOUT,
         )
     except requests.RequestException as error:
         raise SongSourceError(502) from error

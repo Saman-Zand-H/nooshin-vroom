@@ -46,6 +46,10 @@ services:
       SPOTIFY_REDIRECT_URIS: ${SPOTIFY_REDIRECT_URIS:-}
       SPOTIFY_TOKEN_KEY: ${SPOTIFY_TOKEN_KEY:-}
       JAMENDO_CLIENT_ID: ${JAMENDO_CLIENT_ID:-}
+      # YouTube-only egress proxy for yt-dlp (and the stream fetch);
+      # empty means direct, socks5:// or http:// both work.
+      YTDLP_ENABLED: ${YTDLP_ENABLED:-true}
+      YTDLP_PROXY: ${YTDLP_PROXY:-}
       IMDB_WATCHLIST_QUERY_HASH: ${IMDB_WATCHLIST_QUERY_HASH:-}
       IMDB_WATCHLIST_ENABLED: ${IMDB_WATCHLIST_ENABLED:-true}
       # Optional egress proxy for networks without direct internet; empty means direct.

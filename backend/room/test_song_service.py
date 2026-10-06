@@ -92,9 +92,21 @@ class UncreditedTierTests(SimpleTestCase):
     def test_far_duration_is_rejected(self):
         self.assertIsNone(song_service._youtube_uncredited_score(self._entry(), "Summer Wine", 320))
 
-    def test_missing_duration_is_rejected(self):
+    def test_near_title_without_duration_is_rejected(self):
         self.assertIsNone(
-            song_service._youtube_uncredited_score(self._entry(), "Summer Wine", None)
+            song_service._youtube_uncredited_score(
+                self._entry(), "Summer Wine Official Video", None
+            )
+        )
+
+    def test_exactly_named_upload_passes_without_duration(self):
+        entry = SimpleNamespace(
+            id=7, title="Summer Wine", creator="ceZk", provider_duration_ms=None
+        )
+        score = song_service._youtube_uncredited_score(entry, "Summer Wine", None)
+        self.assertEqual(score, 100.0)
+        self.assertEqual(
+            song_service._youtube_uncredited_score(entry, "*SUMMER WINE*", None), 100.0
         )
 
     def test_winner_is_labelled_the_closest_version(self):
@@ -183,6 +195,59 @@ class FetchSourceFileTests(SimpleTestCase):
                 song_service.fetch_source_file({"file": "https://stream.example/expired"})
         self.assertEqual(raised.exception.status, 502)
 
+    def test_proxied_verdicts_fetch_through_the_verdict_proxy(self):
+        response = _FakeResponse(200, {"Content-Type": "audio/mp4"})
+        proxy = "socks5h://127.0.0.1:10808"
+        with mock.patch.object(song_service.requests, "get", return_value=response) as get:
+            song_service.fetch_source_file({"file": "https://stream", "proxy": proxy})
+        self.assertEqual(get.call_args.kwargs["proxies"], {"http": proxy, "https": proxy})
+        self.assertEqual(get.call_args.kwargs["timeout"], (15.05, 60))
+
+
+class LyricChannelMatchTests(SimpleTestCase):
+    def test_credit_in_the_title_matches_the_strict_pass(self):
+        entry = SimpleNamespace(
+            id=6,
+            title="STORM II",
+            creator="GENER8ION, Yung Lean",
+            provider_duration_ms=174000,
+        )
+        flat = {
+            "entries": [
+                {
+                    "id": "iHxL7o5Ejiw",
+                    "title": "GENER8ION, Yung Lean - STORM II (Lyrics)",
+                    "uploader": "The Vibe Guide",
+                    "duration": 174,
+                }
+            ]
+        }
+        full = {
+            "http_headers": {"User-Agent": "yt-dlp-ua"},
+            "formats": [
+                {
+                    "format_id": "140",
+                    "ext": "m4a",
+                    "vcodec": "none",
+                    "acodec": "mp4a.40.2",
+                    "abr": 128,
+                    "url": "https://stream/m4a",
+                }
+            ],
+        }
+
+        def fake_extract(options, target):
+            return flat if "ytsearch" in target else full
+
+        with mock.patch.object(song_service, "_youtube_extract", side_effect=fake_extract):
+            payload = song_service._youtube_match(entry)
+        assert payload is not None
+        self.assertEqual(payload["page"], "https://www.youtube.com/watch?v=iHxL7o5Ejiw")
+        self.assertEqual(payload["variant"], "original")
+        # The card's own names label the download, not the uploader's.
+        self.assertEqual(payload["title"], "STORM II")
+        self.assertEqual(payload["artist"], "GENER8ION, Yung Lean")
+
 
 class LookupCacheTests(SimpleTestCase):
     def setUp(self):
@@ -221,7 +286,7 @@ class LookupCacheTests(SimpleTestCase):
         song_service.evict_lookup(entry)
         self.assertNotIn(key, song_service._lookup_cache)
 
-    def test_catalog_misses_keep_the_full_lookup_ttl(self):
+    def test_misses_expire_quickly_so_a_blocked_source_retries(self):
         entry = self._entry()
         with (
             override_settings(JAMENDO_CLIENT_ID=""),
@@ -235,5 +300,5 @@ class LookupCacheTests(SimpleTestCase):
         key = (song_service._CACHE_VERSION, entry.id)
         expires_at, _ = song_service._lookup_cache[key]
         remaining = expires_at - time.monotonic()
-        self.assertGreater(remaining, song_service.YOUTUBE_URL_TTL_SECONDS)
-        self.assertLessEqual(remaining, song_service.LOOKUP_TTL_SECONDS)
+        self.assertLessEqual(remaining, song_service.MISS_TTL_SECONDS)
+        self.assertGreater(remaining, song_service.MISS_TTL_SECONDS - 10)
