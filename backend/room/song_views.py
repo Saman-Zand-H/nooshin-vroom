@@ -9,6 +9,7 @@ from django.http import (
     FileResponse,
     Http404,
     HttpRequest,
+    HttpResponse,
     JsonResponse,
     StreamingHttpResponse,
 )
@@ -21,6 +22,7 @@ from .song_service import (
     fetch_source_file,
     lookup_song,
 )
+from .song_tags import tagged_audio
 
 SONG_UPLOAD_TYPES = {
     "audio/mpeg",
@@ -44,6 +46,8 @@ SONG_UPLOAD_TYPES = {
 }
 SONG_UPLOAD_EXTENSIONS = {".mp3", ".m4a", ".aac", ".wav", ".ogg", ".oga", ".flac", ".opus", ".webm"}
 SONG_UPLOAD_MAX_SIZE = 60 * 1024 * 1024
+# Catalog files above this size stream through untagged instead of buffering.
+TAG_MAX_BYTES = 64 * 1024 * 1024
 
 
 def _music_entry(entry_id):
@@ -139,7 +143,7 @@ def remove(request: HttpRequest, entry_id):
 
 @require_GET
 def file(request: HttpRequest, entry_id):
-    """Stream the source file as a download, proxying the provider CDN."""
+    """Serve the song as a download with the room's tags and cover art."""
     entry = _music_entry(entry_id)
     if entry.song_file:
         content_type = (
@@ -147,11 +151,15 @@ def file(request: HttpRequest, entry_id):
             mimetypes.guess_type(entry.song_file.name)[0] or "application/octet-stream"
         )
         # pyrefly: ignore [unsupported-operation]
-        return _attachment_response(
-            FileResponse(entry.song_file.open("rb"), content_type=content_type),
-            entry,
-            content_type,
+        data = entry.song_file.open("rb").read()
+        tagged = tagged_audio(data, content_type, entry)
+        response = (
+            HttpResponse(tagged, content_type=content_type)
+            if tagged is not None
+            # pyrefly: ignore [unsupported-operation]
+            else FileResponse(entry.song_file.open("rb"), content_type=content_type)
         )
+        return _attachment_response(response, entry, content_type)
     try:
         payload = lookup_song(entry)
     except SongSourceError:
@@ -165,5 +173,35 @@ def file(request: HttpRequest, entry_id):
     content_type = upstream.headers.get("Content-Type", "")
     if not content_type.startswith("audio/"):
         content_type = "application/octet-stream"
-    response = StreamingHttpResponse(upstream.iter_content(64 * 1024), content_type=content_type)
-    return _attachment_response(response, entry, content_type)
+    declared = upstream.headers.get("Content-Length", "")
+    if declared.isdigit() and int(declared) > TAG_MAX_BYTES:
+        return _attachment_response(
+            StreamingHttpResponse(upstream.iter_content(64 * 1024), content_type=content_type),
+            entry,
+            content_type,
+        )
+    chunks = []
+    size = 0
+    for chunk in upstream.iter_content(64 * 1024):
+        size += len(chunk)
+        if size > TAG_MAX_BYTES:
+            break
+        chunks.append(chunk)
+    if size > TAG_MAX_BYTES:
+        # The provider lied about the size; fetch again and stream untouched.
+        try:
+            retry = fetch_source_file(payload)
+        except SongSourceError:
+            return JsonResponse(
+                {"error": "The song source is temporarily unavailable."}, status=502
+            )
+        return _attachment_response(
+            StreamingHttpResponse(retry.iter_content(64 * 1024), content_type=content_type),
+            entry,
+            content_type,
+        )
+    data = b"".join(chunks)
+    tagged = tagged_audio(data, content_type, entry)
+    if tagged is not None:
+        data = tagged
+    return _attachment_response(HttpResponse(data, content_type=content_type), entry, content_type)
