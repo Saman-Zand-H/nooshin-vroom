@@ -5,14 +5,20 @@ audio. Full-track downloads come from catalogs that exist to be
 downloaded: Jamendo serves Creative Commons music, Audius serves
 artist-uploaded tracks through its open API (only when the artist marked
 the track downloadable), and the Internet Archive serves its public audio
-collections. Commercial catalogs live on licensed stores only, so a song
-absent from the open catalogs reports a miss instead of a clip or a rip.
+collections. A commercial song the open catalogs miss falls through to
+yt-dlp, which searches YouTube and feeds the results to the same matcher,
+so the room's two members still get their track instead of a miss.
 
 Ranking follows the scheme proven by spotDL (spotify-downloader): every
 candidate gets a fuzzy title score, an artist-evidence score, and a
 duration score exp(-0.1 * |delta seconds|); derivative markers (live,
 remix, cover, ...) cost 15 points each unless the song title itself
 carries them; the best candidate wins instead of the first loose match.
+YouTube adds a second-chance tier for songs credited to artists no upload
+mentions (a rework artist's song often survives on YouTube only under the
+original artist or a fan channel): a clean near-exact title with at most
+twice the card's words and a matching duration is delivered as the
+closest version, after every credited candidate has failed.
 """
 
 import re
@@ -21,6 +27,7 @@ import unicodedata
 from difflib import SequenceMatcher
 from functools import lru_cache
 from math import exp
+from typing import Any
 from urllib.parse import quote
 
 import requests
@@ -45,6 +52,11 @@ SEARCH_TIMEOUT = (3.05, 8)
 METADATA_TIMEOUT = (3.05, 15)
 FILE_TIMEOUT = (3.05, 30)
 LOOKUP_TTL_SECONDS = 24 * 60 * 60
+# yt-dlp hands out signed direct stream urls that YouTube expires after a
+# few hours, so a youtube verdict must not sit in the lookup cache for a
+# full catalog TTL.
+YOUTUBE_URL_TTL_SECONDS = 3 * 60 * 60
+YOUTUBE_RESULTS_PER_QUERY = 8
 USER_AGENT = "for-nooshin-room/1.0"
 APP_NAME = "for-nooshin-room"
 
@@ -60,7 +72,7 @@ EARLY_EXIT_SCORE = 90.0
 # entry id -> (expires_at, payload); the catalogs' answers rarely change,
 # so repeat clicks on a card cost nothing. The version shadows verdicts
 # from an older matcher.
-_CACHE_VERSION = 3
+_CACHE_VERSION = 5
 _lookup_cache = {}
 
 
@@ -712,8 +724,193 @@ def _archive_match(entry):
     return best.best()
 
 
+# Content types for the extensions yt-dlp actually returns for audio-only
+# YouTube streams; the file view falls back to this when the stream's own
+# header lies about what it is serving.
+_YOUTUBE_CONTENT_TYPES = {
+    "m4a": "audio/mp4",
+    "mp4": "audio/mp4",
+    "webm": "audio/webm",
+    "ogg": "audio/ogg",
+    "mp3": "audio/mpeg",
+}
+
+
+def _youtube_options(flat) -> dict[str, Any]:
+    options: dict[str, Any] = {
+        "quiet": True,
+        "no_warnings": True,
+        "noprogress": True,
+        "skip_download": True,
+        "socket_timeout": 12,
+        "retries": 1,
+        "extractor_retries": 1,
+    }
+    if flat:
+        # Search listing only: one request instead of a full extraction
+        # per result.
+        options["extract_flat"] = "in_playlist"
+    proxy = getattr(settings, "YTDLP_PROXY", "")
+    if proxy:
+        options["proxy"] = proxy
+    return options
+
+
+def _youtube_extract(options: dict[str, Any], target: str) -> Any | None:
+    """Run one yt-dlp extraction, or None when it fails for any reason.
+
+    yt_dlp is imported lazily so a deployment without it degrades to the
+    open catalogs instead of breaking the whole lookup chain. Every
+    extractor failure (block, format change, network) is a miss for this
+    source, never an error for the member.
+    """
+    try:
+        import yt_dlp
+    except ImportError:
+        return None
+    try:
+        # The options dict is built dynamically, so it cannot carry
+        # yt-dlp's TypedDict shape.
+        with yt_dlp.YoutubeDL(options) as ydl:  # pyrefly: ignore [bad-argument-type]
+            return ydl.extract_info(target, download=False)
+    except Exception:
+        return None
+
+
+def _pick_audio_format(formats: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The stream to serve: audio-only, preferring m4a because the room's
+    tagger rewrites it and every player opens it, whatever bitrate the
+    opus stream beside it advertises."""
+    audio = [
+        fmt
+        for fmt in formats
+        if fmt.get("vcodec") == "none"
+        and fmt.get("acodec") not in ("none", None)
+        and fmt.get("url")
+    ]
+    if not audio:
+        return None
+    return max(
+        audio, key=lambda fmt: (fmt.get("ext") == "m4a", fmt.get("abr") or fmt.get("tbr") or 0)
+    )
+
+
+def _youtube_queries(entry):
+    """Searches in widening order: the full credit, the primary artist
+    with the bare title, then the bare title alone — an upload credited
+    to nobody the card knows is invisible to the combined queries."""
+    queries = []
+    for query in [
+        f"{entry.creator} {entry.title}".strip(),
+        f"{_primary_artist(entry.creator)} {_bare_title(entry.title)}".strip(),
+        _bare_title(entry.title),
+    ]:
+        if query and query not in queries:
+            queries.append(query)
+    return queries
+
+
+def _youtube_uncredited_score(entry, title, seconds):
+    """Title-plus-duration agreement for the second-chance tier: how a
+    rework artist's song survives on YouTube, uploaded under the original
+    artist or a fan channel. The title must be exact or a containment no
+    longer than twice the card's words — longer titles are other songs
+    named after it, like the sitcom in "Last of the Summer Wine" — and
+    the duration must still match the card."""
+    want = _normalize(entry.title).split()
+    have = _normalize(title).split()
+    if not want or not have:
+        return None
+    score = _title_score(entry.title, title) - 15 * _forbidden_hits(title, entry.title)
+    if score < 90.0:
+        return None
+    if want != have and len(have) > 2 * len(want):
+        return None
+    duration = _duration_score(entry, seconds)
+    if duration is None or duration < 15.0:
+        return None
+    return (score + duration) / 2
+
+
+def _youtube_uncredited(entry, candidates):
+    """Pick the best upload that credits nobody the card knows, or None.
+
+    Every winner is labelled the closest version: the song title and
+    length say it is the same recording, but no evidence ties it to the
+    credited artist.
+    """
+    best = None
+    for video_id, title, seconds in candidates:
+        score = _youtube_uncredited_score(entry, title, seconds)
+        if score is None:
+            continue
+        if best is None or score > best[0]:
+            found = _found("youtube", entry, entry.title, entry.creator, "")
+            found["page"] = f"https://www.youtube.com/watch?v={video_id}"
+            found["variant"] = "derivative"
+            best = (score, found)
+    return best[1] if best else None
+
+
+def _youtube_match(entry):
+    if not getattr(settings, "YTDLP_ENABLED", True):
+        return None
+    best = _Ranked()
+    seen = set()
+    candidates = []
+    done = False
+    for query in _youtube_queries(entry):
+        if done:
+            break
+        info = _youtube_extract(
+            _youtube_options(flat=True), f"ytsearch{YOUTUBE_RESULTS_PER_QUERY}:{query}"
+        )
+        for result in (info or {}).get("entries") or []:
+            video_id = result.get("id") or ""
+            if not video_id or video_id in seen:
+                continue
+            seen.add(video_id)
+            title = result.get("title") or ""
+            seconds = result.get("duration")
+            # Music surfaces as "Artist - Topic" and "ArtistVEVO" uploads;
+            # both fields together give the matcher its artist evidence.
+            artist = " ".join(
+                part for part in [result.get("uploader"), result.get("channel")] if part
+            )
+            candidates.append((video_id, title, seconds))
+            score = _candidate_score(entry, title, artist, seconds, title)
+            if score is None:
+                continue
+            found = _found("youtube", entry, title, artist, "")
+            found["page"] = f"https://www.youtube.com/watch?v={video_id}"
+            if best.add(*_scored(found, score, title, entry.title)):
+                done = True
+                break
+    winner = best.best() or _youtube_uncredited(entry, candidates)
+    if winner is None:
+        return None
+    return _youtube_resolve(winner)
+
+
+def _youtube_resolve(found: dict[str, Any]) -> dict[str, Any] | None:
+    """Exchange the winning search result for a direct audio stream."""
+    info = _youtube_extract(_youtube_options(flat=False), found["page"])
+    if not info or info.get("is_live"):
+        return None
+    fmt = _pick_audio_format(info.get("formats") or [])
+    if fmt is None:
+        return None
+    found["file"] = fmt["url"]
+    found["headers"] = {
+        **(info.get("http_headers") or {}),
+        **(fmt.get("http_headers") or {}),
+    }
+    found["content_type"] = _YOUTUBE_CONTENT_TYPES.get(fmt.get("ext") or "", "")
+    return found
+
+
 def lookup_song(entry):
-    """Return the best open-catalog source for a music entry, or a miss."""
+    """Return the best open source for a music entry, or a miss."""
     # A member-uploaded file outranks every catalog and must bypass the
     # cache, or an earlier miss would keep answering after the upload.
     if getattr(entry, "song_file", None):
@@ -723,11 +920,22 @@ def lookup_song(entry):
     now = time.monotonic()
     if cached and cached[0] > now:
         return cached[1]
-    payload = _jamendo_match(entry) or _audius_match(entry) or _archive_match(entry)
+    payload = (
+        _jamendo_match(entry)
+        or _audius_match(entry)
+        or _archive_match(entry)
+        or _youtube_match(entry)
+    )
     if not payload:
         payload = {"status": "miss"}
-    _lookup_cache[key] = (now + LOOKUP_TTL_SECONDS, payload)
+    ttl = YOUTUBE_URL_TTL_SECONDS if payload.get("source") == "youtube" else LOOKUP_TTL_SECONDS
+    _lookup_cache[key] = (now + ttl, payload)
     return payload
+
+
+def evict_lookup(entry):
+    """Drop the cached verdict so the next lookup resolves it fresh."""
+    _lookup_cache.pop((_CACHE_VERSION, entry.id), None)
 
 
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9 .,_()-]+")
@@ -745,6 +953,8 @@ _AUDIO_EXTENSIONS = {
     "flac": ".flac",
     "x-flac": ".flac",
     "flv": ".flv",
+    "webm": ".webm",
+    "x-webm": ".webm",
 }
 
 
@@ -757,11 +967,15 @@ def download_filename(payload, content_type=""):
 
 
 def fetch_source_file(payload):
-    """Stream the source file, or raise SongSourceError."""
+    """Stream the source file, or raise SongSourceError.
+
+    yt-dlp verdicts carry the headers YouTube expects alongside the url;
+    catalog verdicts have none and keep the room's user agent.
+    """
     try:
         response = requests.get(
             payload["file"],
-            headers={"User-Agent": USER_AGENT},
+            headers={"User-Agent": USER_AGENT, **(payload.get("headers") or {})},
             stream=True,
             timeout=FILE_TIMEOUT,
         )

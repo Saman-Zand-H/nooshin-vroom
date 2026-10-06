@@ -19,6 +19,7 @@ from .models import RoomEntry, RoomEvent
 from .song_service import (
     SongSourceError,
     download_filename,
+    evict_lookup,
     fetch_source_file,
     lookup_song,
 )
@@ -164,15 +165,35 @@ def file(request: HttpRequest, entry_id):
         payload = lookup_song(entry)
     except SongSourceError:
         return JsonResponse({"error": "The song source is temporarily unavailable."}, status=502)
-    if payload.get("status") != "found" or not payload.get("file"):
-        return JsonResponse({"error": "Song source not found."}, status=404)
-    try:
-        upstream = fetch_source_file(payload)
-    except SongSourceError:
-        return JsonResponse({"error": "The song source is temporarily unavailable."}, status=502)
+    upstream = None
+    for attempt in range(2):
+        if payload.get("status") != "found" or not payload.get("file"):
+            return JsonResponse({"error": "Song source not found."}, status=404)
+        try:
+            upstream = fetch_source_file(payload)
+        except SongSourceError:
+            # A cached youtube stream url can die before its verdict does;
+            # evict it and resolve once more instead of failing the download.
+            if attempt or payload.get("source") != "youtube":
+                return JsonResponse(
+                    {"error": "The song source is temporarily unavailable."}, status=502
+                )
+            evict_lookup(entry)
+            try:
+                payload = lookup_song(entry)
+            except SongSourceError:
+                return JsonResponse(
+                    {"error": "The song source is temporarily unavailable."}, status=502
+                )
+        else:
+            break
+    # Every path that leaves the loop without a stream has returned.
+    assert upstream is not None
     content_type = upstream.headers.get("Content-Type", "")
     if not content_type.startswith("audio/"):
-        content_type = "application/octet-stream"
+        # Streams like YouTube's answer with a container type; the verdict
+        # knows the audio type it picked.
+        content_type = payload.get("content_type") or "application/octet-stream"
     declared = upstream.headers.get("Content-Length", "")
     if declared.isdigit() and int(declared) > TAG_MAX_BYTES:
         return _attachment_response(

@@ -165,6 +165,10 @@ if not SPOTIFY_REDIRECT_URIS and SPOTIFY_REDIRECT_URI:
     SPOTIFY_REDIRECT_URIS = [SPOTIFY_REDIRECT_URI]
 SPOTIFY_TOKEN_KEY = os.getenv("SPOTIFY_TOKEN_KEY", "")
 JAMENDO_CLIENT_ID = os.getenv("JAMENDO_CLIENT_ID", "")
+YTDLP_ENABLED = env_bool("YTDLP_ENABLED", True)
+# yt-dlp proxy for reaching YouTube when the server's own network cannot,
+# e.g. socks5://127.0.0.1:1080 or http://127.0.0.1:8080.
+YTDLP_PROXY = os.getenv("YTDLP_PROXY", "")
 IMDB_WATCHLIST_QUERY_HASH = os.getenv("IMDB_WATCHLIST_QUERY_HASH", "")
 IMDB_WATCHLIST_ENABLED = env_bool("IMDB_WATCHLIST_ENABLED", True)
 

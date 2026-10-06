@@ -26,16 +26,17 @@ export function SongDownload({ entry }: { entry: Entry }) {
     setPhase("looking");
     setNote("");
     try {
-      // Misses walk three catalogs, so allow a longer budget than usual.
+      // Misses walk three catalogs and then YouTube, so allow a longer
+      // budget than usual.
       const found = await djangoRequest<SongSource>(
         `/api/songs/${entry.id}/download/`,
-        { signal: AbortSignal.timeout(60_000) },
+        { signal: AbortSignal.timeout(90_000) },
       );
       if (
         found.status !== "found" ||
         (!found.file && found.source !== "manual")
       ) {
-        setNote("No open catalog has this song yet");
+        setNote("No source has this song yet");
         setPhase("none");
         return;
       }
@@ -103,7 +104,7 @@ export function SongDownload({ entry }: { entry: Entry }) {
   if (phase === "none") {
     return (
       <div className="entry-download-note">
-        <span>{note || "No open catalog has this song yet"}</span>
+        <span>{note || "No source has this song yet"}</span>
         <button
           type="button"
           className="text-button"
@@ -133,7 +134,7 @@ export function SongDownload({ entry }: { entry: Entry }) {
         className="text-button"
         onClick={begin}
         disabled={phase === "looking"}
-        title="Fetch the full track from an open catalog"
+        title="Fetch the full track from a catalog or YouTube"
       >
         <Download size={16} />
         {phase === "looking"
