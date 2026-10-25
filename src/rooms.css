@@ -2154,6 +2154,12 @@ button.moon-day.moon-period:focus-visible {
   margin: 6px 0 18px;
   border: 0;
   padding: 0;
+  /* Fieldsets default to min-content width, which pushed the date inputs
+     past the edge of the phone-width dialog. */
+  min-width: 0;
+}
+.cycle-fields .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .cycle-fields > legend {
   font-size: 13px;
