@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "controlroom.middleware.PrivateApiCacheMiddleware",
     "controlroom.middleware.FrontendCorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # Django only populates request.POST/request.FILES for POST by default.

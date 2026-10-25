@@ -25,3 +25,21 @@ class FrontendCorsMiddleware:
             response["Access-Control-Allow-Methods"] = "GET, POST, PATCH, PUT, DELETE, OPTIONS"
             response["Vary"] = "Origin"
         return response
+
+
+class PrivateApiCacheMiddleware:
+    """Keep every API response out of shared caches.
+
+    The CDN in front of the site stores responses that carry no Cache-Control
+    header and ignores Vary: Cookie, so it served the room snapshot to signed-out
+    visitors and handed members a stale room right after they saved.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if request.path.startswith("/api/"):
+            response.setdefault("Cache-Control", "private, no-store")
+        return response
