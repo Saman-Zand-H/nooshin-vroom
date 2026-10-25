@@ -24,6 +24,13 @@ function apiUrl(path: string) {
   return `${configuredBase}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+// The CDN in front of the site has stored API reads and replayed them to
+// everyone, cookies or not. A one-off query string keeps each read on Django.
+function freshApiUrl(path: string) {
+  const url = apiUrl(path);
+  return `${url}${url.includes("?") ? "&" : "?"}_=${Date.now()}`;
+}
+
 function csrfCookie() {
   const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
@@ -36,7 +43,7 @@ export async function ensureCsrf() {
     return csrfToken;
   }
   if (csrfToken) return csrfToken;
-  const response = await fetch(apiUrl("/api/auth/csrf/"), {
+  const response = await fetch(freshApiUrl("/api/auth/csrf/"), {
     credentials: "include",
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(10_000),
@@ -59,13 +66,16 @@ export async function djangoRequest<T>(
     const token = await ensureCsrf();
     if (token) headers.set("X-CSRFToken", token);
   }
-  const response = await fetch(apiUrl(path), {
-    ...init,
-    method,
-    headers,
-    credentials: "include",
-    signal: init.signal || AbortSignal.timeout(30_000),
-  });
+  const response = await fetch(
+    method === "GET" ? freshApiUrl(path) : apiUrl(path),
+    {
+      ...init,
+      method,
+      headers,
+      credentials: "include",
+      signal: init.signal || AbortSignal.timeout(30_000),
+    },
+  );
   let payload: unknown = null;
   try {
     payload = await response.json();
