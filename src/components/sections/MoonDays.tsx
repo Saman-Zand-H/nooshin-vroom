@@ -29,11 +29,10 @@ const shiftDay = (value: string, days: number) =>
   isoDay(new Date(dayAnchor(value).getTime() + days * DAY_MS));
 const cap = (value: string) => value[0].toUpperCase() + value.slice(1);
 
-// An open period is assumed to run the usual five days; a logged one shades
-// exactly what was kept, capped at ten. A longer span reads as a whole-cycle
-// record (first day → the day before the next one began), so only the period
-// itself is drawn either way.
-const TYPICAL_PERIOD_DAYS = 5;
+// A period runs the usual seven days unless its own logged span says
+// otherwise. A span over ten days reads as a whole-cycle record (first day →
+// the day before the next one began), so only its usual seven are drawn.
+const TYPICAL_PERIOD_DAYS = 7;
 const PERIOD_MAX_DAYS = 10;
 // The luteal phase holds fairly steady at about two weeks, so ovulation sits
 // ~14 days before the next period, whatever the cycle length.
@@ -54,6 +53,10 @@ const PHASE_LINES: Record<PhaseKey, string> = {
 };
 const spanOf = (details: CycleDetails) =>
   details.ended ? daysBetween(details.started, details.ended) + 1 : null;
+const periodLengthOf = (details: CycleDetails) => {
+  const span = spanOf(details);
+  return span !== null && span <= PERIOD_MAX_DAYS ? span : TYPICAL_PERIOD_DAYS;
+};
 
 interface Period {
   entry: Entry;
@@ -135,14 +138,13 @@ export function MoonDays({ onAdd, onEdit }: SectionActions) {
     : null;
   const dueIn = expected ? daysBetween(today, expected) : null;
 
-  // Each entry shades its own days, never past today, never past ten — the
-  // calendar only ever claims the period, even when the entry spans a cycle.
+  // Each entry shades its own period days, never past today — the calendar
+  // only ever claims the period, even when the entry spans a cycle.
   const periodDays = useMemo(() => {
     const map = new Map<string, string>();
     for (const { entry, details } of periods) {
       const length = Math.min(
-        spanOf(details) ?? TYPICAL_PERIOD_DAYS,
-        PERIOD_MAX_DAYS,
+        periodLengthOf(details),
         daysBetween(details.started, today) + 1,
       );
       for (let day = 0; day < length; day++)
@@ -154,13 +156,13 @@ export function MoonDays({ onAdd, onEdit }: SectionActions) {
   const expectedDays = useMemo(() => {
     if (!expected) return new Set<string>();
     return new Set(
-      Array.from({ length: 5 }, (_, index) => shiftDay(expected, index)),
+      Array.from({ length: TYPICAL_PERIOD_DAYS }, (_, index) =>
+        shiftDay(expected, index),
+      ),
     );
   }, [expected]);
 
-  const periodSpan = newest
-    ? Math.min(spanOf(newest.details) ?? TYPICAL_PERIOD_DAYS, PERIOD_MAX_DAYS)
-    : 0;
+  const periodSpan = newest ? periodLengthOf(newest.details) : 0;
   const inPeriodToday = !!newest && periodDays.get(today) === newest.entry.id;
   const ovulationDay = Math.max(2, cycleLength - LUTEAL_DAYS);
   const phase: PhaseKey | null =
@@ -234,7 +236,10 @@ export function MoonDays({ onAdd, onEdit }: SectionActions) {
         ? (() => {
             const r = radius + 15;
             const [x1, y1] = point(r, angleFor(cycleLength + 1));
-            const [x2, y2] = point(r, angleFor(cycleLength + 5));
+            const [x2, y2] = point(
+              r,
+              angleFor(cycleLength + TYPICAL_PERIOD_DAYS),
+            );
             return (
               <path
                 d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
